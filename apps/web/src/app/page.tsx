@@ -147,6 +147,26 @@ export default function CustomerOrderingApp() {
 
   const [isReturningClient, setIsReturningClient] = useState(false);
   const [totalTrips, setTotalTrips] = useState(0);
+  const [lastBooking, setLastBooking] = useState<{
+    equipmentId?: string | null;
+    equipmentName: string;
+    serviceGroup: 'TRANSPORT' | 'MACHINERY';
+    pickupAddress: string;
+    deliveryAddress: string;
+  } | null>(null);
+
+  const saveLastBooking = (booking: {
+    equipmentId?: string | null;
+    equipmentName: string;
+    serviceGroup: 'TRANSPORT' | 'MACHINERY';
+    pickupAddress: string;
+    deliveryAddress: string;
+  }) => {
+    setLastBooking(booking);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('vagrova_last_booking', JSON.stringify(booking));
+    }
+  };
 
   const selectedEquipmentObj =
     equipmentCatalog
@@ -168,6 +188,12 @@ export default function CustomerOrderingApp() {
         setIsReturningClient(true);
       }
       if (savedCompany) setCompanyName(savedCompany);
+      const savedLastBooking = localStorage.getItem('vagrova_last_booking');
+      if (savedLastBooking) {
+        try {
+          setLastBooking(JSON.parse(savedLastBooking));
+        } catch {}
+      }
 
       if (savedToken) {
         vagrovaApi
@@ -191,6 +217,22 @@ export default function CustomerOrderingApp() {
               setIsReturningClient(false);
             }
           });
+
+        vagrovaApi
+          .getMyJobs(savedToken)
+          .then((jobs) => {
+            if (Array.isArray(jobs) && jobs.length > 0) {
+              const latest = jobs[0];
+              saveLastBooking({
+                equipmentId: latest.equipmentTypeId || null,
+                equipmentName: latest.equipmentType?.name || latest.vehicleType || 'Flatbed Truck',
+                serviceGroup: latest.serviceGroup === 'MACHINERY' ? 'MACHINERY' : 'TRANSPORT',
+                pickupAddress: latest.pickupAddress || 'Tema Port',
+                deliveryAddress: latest.deliveryAddress || 'Accra',
+              });
+            }
+          })
+          .catch(() => {});
       }
     }
   }, []);
@@ -1054,6 +1096,73 @@ export default function CustomerOrderingApp() {
                   <Calendar size={18} />
                 </button>
               </div>
+
+              {lastBooking && (
+                <div
+                  style={{
+                    backgroundColor: colors.asphalt,
+                    color: colors.roadWhite,
+                    borderRadius: '12px',
+                    padding: '12px 14px',
+                    marginBottom: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '10px',
+                  }}
+                >
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        letterSpacing: '0.08em',
+                        color: colors.safetyAmber,
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      Quick Rebook · Last Trip
+                    </div>
+                    <div style={{ fontSize: '13px', fontWeight: 700, marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {lastBooking.equipmentName}
+                    </div>
+                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.78)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {lastBooking.serviceGroup === 'MACHINERY'
+                        ? lastBooking.pickupAddress
+                        : `${lastBooking.pickupAddress} → ${lastBooking.deliveryAddress}`}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSelectedEquipmentId(lastBooking.equipmentId || null);
+                      setSelectedEquipmentName(lastBooking.equipmentName);
+                      setServiceGroup(lastBooking.serviceGroup);
+                      if (lastBooking.serviceGroup === 'MACHINERY') {
+                        setProjectLocation(lastBooking.pickupAddress);
+                        setScreen('machinery_request');
+                      } else {
+                        setPickupAddress(lastBooking.pickupAddress);
+                        setDeliveryAddress(lastBooking.deliveryAddress);
+                        setScreen('photos');
+                      }
+                    }}
+                    style={{
+                      backgroundColor: colors.safetyAmber,
+                      color: colors.asphalt,
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '8px 12px',
+                      fontSize: '12px',
+                      fontWeight: 800,
+                      flexShrink: 0,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Rebook →
+                  </button>
+                </div>
+              )}
 
               {/* Service Category A vs B Selector */}
               <div
@@ -2130,6 +2239,13 @@ export default function CustomerOrderingApp() {
                       needOffloadingHelp,
                       isHazardous,
                     });
+                    saveLastBooking({
+                      equipmentId: selectedEquipmentId,
+                      equipmentName: selectedEquipmentName,
+                      serviceGroup: 'TRANSPORT',
+                      pickupAddress,
+                      deliveryAddress,
+                    });
                     setSubmittedJobNumber(res.jobRequest.jobNumber);
                     setScreen('request_submitted');
                   } catch (err) {
@@ -2377,6 +2493,13 @@ export default function CustomerOrderingApp() {
                         specialInstructions,
                       },
                     });
+                    saveLastBooking({
+                      equipmentId: selectedEquipmentId,
+                      equipmentName: selectedEquipmentName,
+                      serviceGroup: 'TRANSPORT',
+                      pickupAddress,
+                      deliveryAddress,
+                    });
                     setSubmittedJobNumber(res.jobRequest.jobNumber);
                     setScreen('request_submitted');
                   } catch (err) {
@@ -2505,6 +2628,13 @@ export default function CustomerOrderingApp() {
                         stationMode,
                         stagingDays: Number(stationStagingDays) || 0,
                       },
+                    });
+                    saveLastBooking({
+                      equipmentId: selectedEquipmentId,
+                      equipmentName: selectedEquipmentName,
+                      serviceGroup: 'TRANSPORT',
+                      pickupAddress,
+                      deliveryAddress,
                     });
                     setSubmittedJobNumber(res.jobRequest.jobNumber);
                     setScreen('request_submitted');
