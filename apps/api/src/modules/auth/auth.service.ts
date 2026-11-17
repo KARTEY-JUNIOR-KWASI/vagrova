@@ -98,7 +98,13 @@ export class AuthService {
     otp: string,
     name?: string,
     requestedRole?: string,
-  ): Promise<{ accessToken: string; user: any }> {
+  ): Promise<{
+    accessToken: string;
+    isNewUser: boolean;
+    isReturningUser: boolean;
+    totalJobs: number;
+    user: any;
+  }> {
     const phone = this.normalizePhone(rawPhone);
 
     const user = await this.prisma.user.findUnique({
@@ -121,6 +127,8 @@ export class AuthService {
     if (!isValid) {
       throw new UnauthorizedException('Invalid verification code.');
     }
+
+    const isReturningUser = Boolean(user.name && user.name !== 'New User');
 
     // Only allow self-service roles (CUSTOMER, OWNER, DRIVER) during OTP onboarding.
     // Staff roles (ADMIN, SUPER_ADMIN, FINANCE, DISPATCHER, AGENT) can never be self-assigned.
@@ -193,8 +201,17 @@ export class AuthService {
       entityId: updatedUser.id,
     });
 
+    const totalJobs = updatedUser.customerProfile
+      ? await this.prisma.jobRequest.count({
+          where: { customerId: updatedUser.customerProfile.id },
+        })
+      : 0;
+
     return {
       accessToken,
+      isNewUser: !isReturningUser,
+      isReturningUser,
+      totalJobs,
       user: {
         id: updatedUser.id,
         phone: updatedUser.phone,
@@ -202,8 +219,85 @@ export class AuthService {
         role: updatedUser.role,
         language: updatedUser.language,
         status: updatedUser.status,
+        companyName: updatedUser.customerProfile?.companyName ?? null,
       },
     };
+  }
+
+  /**
+   * Returns current authenticated user profile + returning-client metrics.
+   */
+  async getProfile(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        customerProfile: true,
+        providerProfile: true,
+      },
+    });
+    if (!user) {
+      throw new UnauthorizedException('User account not found.');
+    }
+    const totalJobs = user.customerProfile
+      ? await this.prisma.jobRequest.count({
+          where: { customerId: user.customerProfile.id },
+        })
+      : 0;
+    const isReturningUser = Boolean(user.name && user.name !== 'New User');
+
+    return {
+      isNewUser: !isReturningUser,
+      isReturningUser,
+      totalJobs,
+      user: {
+        id: user.id,
+        phone: user.phone,
+        name: user.name,
+        role: user.role,
+        language: user.language,
+        status: user.status,
+        companyName: user.customerProfile?.companyName ?? null,
+      },
+    };
+  }
+
+  /**
+   * Persists first-time or updated customer profile (name, companyName, email) in DB.
+   */
+  async updateProfile(
+    userId: string,
+    payload: { name?: string; companyName?: string; email?: string },
+  ) {
+    const cleanName = payload.name?.trim();
+    const cleanCompany = payload.companyName?.trim();
+    const cleanEmail = payload.email?.trim();
+
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(cleanName ? { name: cleanName } : {}),
+        ...(cleanEmail ? { email: cleanEmail } : {}),
+      },
+      include: { customerProfile: true },
+    });
+
+    if (cleanCompany !== undefined) {
+      if (user.customerProfile) {
+        await this.prisma.customer.update({
+          where: { id: user.customerProfile.id },
+          data: { companyName: cleanCompany || null },
+        });
+      } else {
+        await this.prisma.customer.create({
+          data: {
+            userId: user.id,
+            companyName: cleanCompany || null,
+          },
+        });
+      }
+    }
+
+    return this.getProfile(userId);
   }
 }
 

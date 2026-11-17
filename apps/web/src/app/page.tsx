@@ -144,14 +144,46 @@ export default function CustomerOrderingApp() {
   const [stationMode, setStationMode] = useState('Hub-to-Hub Consolidated Freight');
   const [stationStagingDays, setStationStagingDays] = useState('2');
 
+  const [isReturningClient, setIsReturningClient] = useState(false);
+  const [totalTrips, setTotalTrips] = useState(0);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedToken = localStorage.getItem('vagrova_customer_token');
       const savedPhone = localStorage.getItem('vagrova_customer_phone');
       const savedCustomerName = localStorage.getItem('vagrova_customer_name');
+      const savedCompany = localStorage.getItem('vagrova_customer_company');
       if (savedToken) setAuthToken(savedToken);
       if (savedPhone) setAuthPhone(savedPhone);
-      if (savedCustomerName) setCustomerName(savedCustomerName);
+      if (savedCustomerName && savedCustomerName !== 'New User') {
+        setCustomerName(savedCustomerName);
+        setIsReturningClient(true);
+      }
+      if (savedCompany) setCompanyName(savedCompany);
+
+      if (savedToken) {
+        vagrovaApi
+          .getMe(savedToken)
+          .then((me) => {
+            if (me.user.name && me.user.name !== 'New User') {
+              setCustomerName(me.user.name);
+              localStorage.setItem('vagrova_customer_name', me.user.name);
+            }
+            if (me.user.companyName) {
+              setCompanyName(me.user.companyName);
+              localStorage.setItem('vagrova_customer_company', me.user.companyName);
+            }
+            setIsReturningClient(Boolean(me.isReturningUser));
+            setTotalTrips(me.totalJobs ?? 0);
+          })
+          .catch((err) => {
+            if (err?.status === 401) {
+              localStorage.removeItem('vagrova_customer_token');
+              setAuthToken(null);
+              setIsReturningClient(false);
+            }
+          });
+      }
     }
   }, []);
 
@@ -278,7 +310,13 @@ export default function CustomerOrderingApp() {
             SCREEN 0A: REALISTIC TRUCK APPROACH + HEADLIGHT BLOOM LOGO INTRO
            ════════════════════════════════════════════════════════════════════ */}
         {screen === 'splash' && (
-          <TruckApproachIntro onComplete={() => setScreen('welcome')} />
+          <TruckApproachIntro
+            onComplete={() => {
+              const hasReturningSession =
+                isReturningClient || Boolean(authToken && customerName && customerName !== 'New User');
+              setScreen(hasReturningSession ? 'home' : 'welcome');
+            }}
+          />
         )}
 
         {/* ════════════════════════════════════════════════════════════════════
@@ -649,11 +687,28 @@ export default function CustomerOrderingApp() {
                       localStorage.setItem('vagrova_customer_token', res.accessToken);
                       localStorage.setItem('vagrova_customer_phone', authPhone);
                     }
-                  } catch {
-                    // Graceful local preview fallback when API is offline
+                    if (res.isReturningUser && res.user?.name && res.user.name !== 'New User') {
+                      setCustomerName(res.user.name);
+                      setIsReturningClient(true);
+                      setTotalTrips(res.totalJobs ?? 0);
+                      if (typeof window !== 'undefined') {
+                        localStorage.setItem('vagrova_customer_name', res.user.name);
+                      }
+                      if (res.user.companyName) {
+                        setCompanyName(res.user.companyName);
+                        if (typeof window !== 'undefined') {
+                          localStorage.setItem('vagrova_customer_company', res.user.companyName);
+                        }
+                      }
+                      setScreen('home');
+                    } else {
+                      setIsReturningClient(false);
+                      setScreen('auth_profile');
+                    }
+                  } catch (err: any) {
+                    setAuthError(err?.message || 'Invalid or expired verification code.');
                   } finally {
                     setAuthLoading(false);
-                    setScreen('auth_profile');
                   }
                 }}
                 style={{ width: '100%', height: '54px', backgroundColor: colors.safetyAmber, color: colors.asphalt, border: 'none', borderRadius: '4px', fontFamily: 'var(--font-heading)', fontSize: '16px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
@@ -774,7 +829,8 @@ export default function CustomerOrderingApp() {
 
             <div style={{ padding: '20px', backgroundColor: colors.waybillPaper, borderTop: `1px solid ${colors.grey200}` }}>
               <button
-                onClick={() => {
+                disabled={authLoading}
+                onClick={async () => {
                   if (!customerName.trim()) {
                     setAuthError('Please enter your name to continue.');
                     return;
@@ -783,7 +839,36 @@ export default function CustomerOrderingApp() {
                     setAuthError('Please enter your company name.');
                     return;
                   }
-                  setScreen('home');
+                  setAuthLoading(true);
+                  setAuthError(null);
+                  const cleanName = customerName.trim();
+                  const cleanCompany = accountType === 'company' ? companyName.trim() : '';
+                  try {
+                    if (authToken) {
+                      await vagrovaApi.updateProfile(authToken, {
+                        name: cleanName,
+                        companyName: cleanCompany || undefined,
+                        email: customerEmail.trim() || undefined,
+                      });
+                    }
+                    if (typeof window !== 'undefined') {
+                      localStorage.setItem('vagrova_customer_name', cleanName);
+                      if (cleanCompany) {
+                        localStorage.setItem('vagrova_customer_company', cleanCompany);
+                      } else {
+                        localStorage.removeItem('vagrova_customer_company');
+                      }
+                    }
+                    setIsReturningClient(false);
+                    setScreen('home');
+                  } catch {
+                    if (typeof window !== 'undefined') {
+                      localStorage.setItem('vagrova_customer_name', cleanName);
+                    }
+                    setScreen('home');
+                  } finally {
+                    setAuthLoading(false);
+                  }
                 }}
                 style={{ width: '100%', height: '54px', backgroundColor: colors.safetyAmber, color: colors.asphalt, border: 'none', borderRadius: '4px', fontFamily: 'var(--font-heading)', fontSize: '16px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
@@ -882,8 +967,27 @@ export default function CustomerOrderingApp() {
 
             <div style={{ padding: '10px 18px 18px' }}>
               {/* Editorial Headline */}
-              <div style={{ fontSize: '12px', fontWeight: 600, color: colors.gravelGrey, marginBottom: '4px' }}>
-                {customerName ? `Welcome, ${customerName.split(' ')[0]}${companyName ? ` · ${companyName}` : ''}` : 'Haul Heavy Loads'}
+              <div style={{ fontSize: '12px', fontWeight: 600, color: colors.gravelGrey, marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <span>
+                  {customerName
+                    ? `${isReturningClient ? 'Welcome back' : 'Welcome'}, ${customerName.split(' ')[0]}${companyName ? ` · ${companyName}` : ''}`
+                    : 'Haul Heavy Loads'}
+                </span>
+                {isReturningClient && (
+                  <span
+                    style={{
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      padding: '2px 7px',
+                      borderRadius: '999px',
+                      backgroundColor: colors.waybillPaper,
+                      color: colors.asphalt,
+                      border: `1px solid ${colors.grey200}`,
+                    }}
+                  >
+                    {totalTrips > 0 ? `Returning Client · ${totalTrips} ${totalTrips === 1 ? 'Trip' : 'Trips'}` : 'Returning Client'}
+                  </span>
+                )}
               </div>
               <h1
                 style={{

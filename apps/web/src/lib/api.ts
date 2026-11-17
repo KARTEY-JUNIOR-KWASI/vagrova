@@ -67,13 +67,62 @@ export const vagrovaApi = {
   },
 
   verifyOtp(phone: string, otp: string, name?: string, role: 'CUSTOMER' | 'DRIVER' | 'OWNER' = 'CUSTOMER') {
-    return apiFetch<{ accessToken: string; user: { id: string; phone: string; name: string; role: string } }>(
+    return apiFetch<{
+      accessToken: string;
+      isNewUser?: boolean;
+      isReturningUser?: boolean;
+      totalJobs?: number;
+      user: {
+        id: string;
+        phone: string;
+        name: string;
+        role: string;
+        companyName?: string | null;
+      };
+    }>(
       '/auth/verify-otp',
       {
         method: 'POST',
         body: JSON.stringify({ phone, otp, name, role }),
       },
     );
+  },
+
+  getMe(token: string) {
+    return apiFetch<{
+      isNewUser: boolean;
+      isReturningUser: boolean;
+      totalJobs: number;
+      user: {
+        id: string;
+        phone: string;
+        name: string;
+        role: string;
+        companyName?: string | null;
+      };
+    }>('/auth/me', { token });
+  },
+
+  updateProfile(
+    token: string,
+    payload: { name?: string; companyName?: string; email?: string },
+  ) {
+    return apiFetch<{
+      isNewUser: boolean;
+      isReturningUser: boolean;
+      totalJobs: number;
+      user: {
+        id: string;
+        phone: string;
+        name: string;
+        role: string;
+        companyName?: string | null;
+      };
+    }>('/auth/profile', {
+      method: 'PATCH',
+      token,
+      body: JSON.stringify(payload),
+    });
   },
 
   requestCallback(phone: string, customerName?: string) {
