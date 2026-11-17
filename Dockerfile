@@ -17,4 +17,4 @@ RUN pnpm --filter @vagrova/api build
 WORKDIR /app/apps/api
 EXPOSE 4000
 
-CMD ["sh", "-c", "npx prisma db push --accept-data-loss=false && node dist/main"]
+CMD ["sh", "-c", "if [ -z \"$DATABASE_URL\" ]; then echo 'FATAL: DATABASE_URL env var is not set in Render Environment'; exit 1; fi && node dist/main"]
