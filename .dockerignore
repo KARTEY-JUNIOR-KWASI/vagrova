@@ -1,0 +1,10 @@
+node_modules
+.next
+dist
+out
+apps/web/android
+apps/web/ios
+apps/web/out
+.env
+*.log
+.git

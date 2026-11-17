@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Vagrova",
+    "slug": "vagrova-customer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#1F2326"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1F2326"
+      },
+      "package": "com.vagrova.customer"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.vagrova.customer"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-location",
+      [
+        "expo-camera",
+        { "cameraPermission": "Vagrova needs camera access to photograph your load." }
+      ],
+      [
+        "expo-image-picker",
+        { "photosPermission": "Vagrova needs photo access to attach images of your load." }
+      ]
+    ],
+    "scheme": "vagrova-customer"
+  }
+}
+

@@ -1,0 +1,21 @@
+{
+  "name": "vagrova",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vagrova – Heavy Haulage Booking Platform",
+  "scripts": {
+    "api": "pnpm --filter @vagrova/api dev",
+    "admin": "pnpm --filter @vagrova/admin dev",
+    "web": "pnpm --filter @vagrova/web dev",
+    "customer": "pnpm --filter @vagrova/customer start",
+    "driver": "pnpm --filter @vagrova/driver start",
+    "build:ui": "pnpm --filter @vagrova/ui build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}
+

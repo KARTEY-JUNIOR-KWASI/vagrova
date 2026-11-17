@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Vagrova</string>
+    <string name="title_activity_main">Vagrova</string>
+    <string name="package_name">com.vagrova.app</string>
+    <string name="custom_url_scheme">com.vagrova.app</string>
+</resources>

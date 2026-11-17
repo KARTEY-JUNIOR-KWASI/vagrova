@@ -1,0 +1,882 @@
+// Vagrova — PostgreSQL Prisma Schema
+// Enterprise Haulage Booking Platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── ENUMS ───────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  CUSTOMER
+  OWNER
+  DRIVER
+  AGENT
+  BOOKING_OFFICER
+  SALES_OFFICER
+  DISPATCHER
+  FLEET_MANAGER
+  OPERATIONS_MANAGER
+  FINANCE
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum ServiceCategoryGroup {
+  TRANSPORT
+  MACHINERY
+}
+
+enum PricingModel {
+  PER_KM
+  HOURLY
+  DAILY
+  WEEKLY
+  MONTHLY
+  PROJECT_CONTRACT
+}
+
+enum BookingStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  NEGOTIATING
+  QUOTED
+  ACCEPTED
+  INVOICED
+  PAYMENT_PENDING
+  PAID
+  DISPATCHED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum InvoiceKind {
+  PRO_FORMA
+  TAX_INVOICE
+  RECEIPT
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PAID
+  EXPIRED
+  REVISED
+  CANCELLED
+}
+
+enum RentalStatus {
+  SCHEDULED
+  MOBILIZING
+  ON_SITE
+  WORKING
+  COMPLETED
+  RETURNED
+}
+
+enum SupportTicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+}
+
+enum CustomerType {
+  INDIVIDUAL
+  COMPANY
+}
+
+enum ProviderKind {
+  OWNER
+  DRIVER
+  OWNER_AND_DRIVER
+}
+
+enum VerificationStatus {
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum VehicleType {
+  TIPPER
+  FLATBED
+  LOWBED
+  CONTAINER_CARRIER
+  TANKER
+  CRANE_TRUCK
+  TOW_RECOVERY
+  REFRIGERATED
+}
+
+enum TruckStatus {
+  AVAILABLE
+  BUSY
+  OFFLINE
+  BLOCKED_EXPIRED_DOCS
+  MAINTENANCE
+}
+
+enum DocumentType {
+  DRIVERS_LICENCE
+  VEHICLE_REGISTRATION
+  ROADWORTHY_CERTIFICATE
+  INSURANCE
+  NATIONAL_ID
+  COMPANY_REGISTRATION
+}
+
+enum DocumentStatus {
+  WAITING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum JobStatus {
+  REQUESTED
+  BEING_PRICED
+  QUOTE_SENT
+  BOOKED
+  OFFERED
+  ASSIGNED
+  HEADING_TO_PICKUP
+  LOADED
+  IN_TRANSIT
+  DELIVERED
+  COMPLETED
+  CANCELLED
+  EXPIRED
+  DISPUTED
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+enum PaymentMethod {
+  MOBILE_MONEY
+  BANK_TRANSFER
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  CONFIRMED
+  FAILED
+  REFUNDED
+}
+
+enum LedgerEntryType {
+  DEBIT
+  CREDIT
+}
+
+// ─── MODELS ──────────────────────────────────────────────────────────────────
+
+model User {
+  id           String      @id @default(uuid())
+  phone        String      @unique
+  name         String
+  role         UserRole    @default(CUSTOMER)
+  language     String      @default("en")
+  status       UserStatus  @default(ACTIVE)
+  photoKey     String?
+  otpSecret    String?
+  otpExpiresAt DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  deletedAt    DateTime?
+
+  // Relations
+  customerProfile       Customer?
+  providerProfile       Provider?
+  staffProfile          CompanyStaff?
+  createdJobRequests    JobRequest[]         @relation("AgentCreatedRequests")
+  assignedJobRequests   JobRequest[]         @relation("OfficerAssignedRequests")
+  reviewedDocuments     Document[]           @relation("ReviewerDocuments")
+  createdQuotes         Quote[]              @relation("AdminCreatedQuotes")
+  quotationRevisions    QuotationRevision[]  @relation("StaffQuotationRevisions")
+  issuedInvoices        Invoice[]            @relation("StaffIssuedInvoices")
+  confirmedPayments     Payment[]            @relation("ConfirmedPayments")
+  createdAssignments    Assignment[]         @relation("StaffAssignments")
+  expensesEntered       Expense[]            @relation("ExpensesEntered")
+  ratingsGiven          Rating[]             @relation("RatingsGiven")
+  ratingsReceived       Rating[]             @relation("RatingsReceived")
+  callLogsAgent         CallLog[]            @relation("AgentCalls")
+  communicationLogs     CommunicationLog[]   @relation("StaffCommunicationLogs")
+  supportTickets        SupportTicket[]      @relation("CustomerSupportTickets")
+  auditActions          AuditLog[]           @relation("UserAuditLogs")
+
+  @@index([phone])
+  @@index([role])
+}
+
+model Customer {
+  id           String       @id @default(uuid())
+  userId       String       @unique
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type         CustomerType @default(INDIVIDUAL)
+  companyName  String?
+  addressNotes String?
+  flags        String[]     @default([])
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  jobRequests  JobRequest[]
+  callLogs     CallLog[]
+
+  @@index([userId])
+}
+
+model Provider {
+  id                 String             @id @default(uuid())
+  userId             String             @unique
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind               ProviderKind       @default(DRIVER)
+  verificationStatus VerificationStatus @default(PENDING)
+  homeTown           String?
+  nextOfKinName      String?
+  nextOfKinPhone     String?
+  rating             Decimal            @default(5.0) @db.Decimal(3, 2)
+  totalTrips         Int                @default(0)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  trucks             Truck[]            @relation("OwnedTrucks")
+  driverAssignments   DriverAssignment[] @relation("AssignedDriver")
+  dispatchAssignments Assignment[]       @relation("OperatorAssignments")
+  assignedJobs        Job[]              @relation("DriverAssignedJobs")
+  payouts            Payout[]
+  documents          Document[]         @relation("ProviderDocuments")
+
+  @@index([userId])
+  @@index([verificationStatus])
+}
+
+model Truck {
+  id              String       @id @default(uuid())
+  ownerId         String
+  owner           Provider     @relation("OwnedTrucks", fields: [ownerId], references: [id], onDelete: Restrict)
+  plate           String         @unique
+  type            VehicleType
+  equipmentTypeId String?
+  equipmentType   EquipmentType? @relation(fields: [equipmentTypeId], references: [id], onDelete: SetNull)
+  make            String
+  model           String
+  year            Int
+  capacityTonnes  Decimal      @db.Decimal(6, 2)
+  dimensionsJson  Json?
+  features        String[]     @default([])
+  photosJson      Json?
+  status          TruckStatus  @default(AVAILABLE)
+
+  // Location telemetry
+  latitude        Decimal?     @db.Decimal(10, 7)
+  longitude       Decimal?     @db.Decimal(10, 7)
+  lastLocationAt  DateTime?
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  deletedAt       DateTime?
+
+  assignments          DriverAssignment[]
+  dispatchAssignments  Assignment[]                 @relation("AssetAssignments")
+  documents            Document[]                   @relation("TruckDocuments")
+  jobs                 Job[]
+  offers               Offer[]
+  locationObservations DriverLocationObservation[]
+
+  @@index([ownerId])
+  @@index([plate])
+  @@index([type])
+  @@index([status])
+}
+
+model DriverAssignment {
+  id         String    @id @default(uuid())
+  truckId    String
+  truck      Truck     @relation(fields: [truckId], references: [id], onDelete: Cascade)
+  driverId   String
+  driver     Provider  @relation("AssignedDriver", fields: [driverId], references: [id], onDelete: Restrict)
+  startDate  DateTime  @default(now())
+  endDate    DateTime?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([truckId])
+  @@index([driverId])
+  @@index([isActive])
+}
+
+model Document {
+  id              String         @id @default(uuid())
+  providerId      String?
+  provider        Provider?      @relation("ProviderDocuments", fields: [providerId], references: [id], onDelete: Cascade)
+  truckId         String?
+  truck           Truck?         @relation("TruckDocuments", fields: [truckId], references: [id], onDelete: Cascade)
+  type            DocumentType
+  fileKey         String
+  expiryDate      DateTime?
+  status          DocumentStatus @default(WAITING)
+  reviewerId      String?
+  reviewer        User?          @relation("ReviewerDocuments", fields: [reviewerId], references: [id], onDelete: SetNull)
+  rejectionReason String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([providerId])
+  @@index([truckId])
+  @@index([type])
+  @@index([status])
+  @@index([expiryDate])
+}
+
+model JobRequest {
+  id                 String       @id @default(uuid())
+  jobNumber          String       @unique // E.g. VGJ-004829
+  customerId         String
+  customer           Customer     @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  createdByAgentId   String?
+  createdByAgent     User?        @relation("AgentCreatedRequests", fields: [createdByAgentId], references: [id], onDelete: SetNull)
+  assignedOfficerId  String?
+  assignedOfficer    User?        @relation("OfficerAssignedRequests", fields: [assignedOfficerId], references: [id], onDelete: SetNull)
+  serviceGroup       ServiceCategoryGroup @default(TRANSPORT)
+  bookingStatus      BookingStatus @default(SUBMITTED)
+  equipmentTypeId    String?
+  equipmentType      EquipmentType? @relation(fields: [equipmentTypeId], references: [id], onDelete: SetNull)
+  vehicleType        VehicleType
+  preferredAt        DateTime?
+  internalNotes      String?
+  pickupAddress      String
+  pickupLandmark     String?
+  pickupContactName  String
+  pickupContactPhone String
+  pickupLatitude     Decimal?     @db.Decimal(10, 7)
+  pickupLongitude    Decimal?     @db.Decimal(10, 7)
+
+  deliveryAddress      String
+  deliveryLandmark     String?
+  deliveryContactName  String
+  deliveryContactPhone String
+  deliveryLatitude     Decimal?   @db.Decimal(10, 7)
+  deliveryLongitude    Decimal?   @db.Decimal(10, 7)
+
+  extraStopsJson     Json?
+  loadCategory       String
+  description        String
+  weightTonnes       Decimal      @db.Decimal(6, 2)
+  isOversized        Boolean      @default(false)
+  dimensionsText     String?
+  needLoadingHelp    Boolean      @default(false)
+  needOffloadingHelp Boolean      @default(false)
+  isHazardous        Boolean      @default(false)
+  photoKeys          String[]     @default([])
+  voiceNoteKey       String?
+  notes              String?
+
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  deletedAt          DateTime?
+
+  quotes             Quote[]
+  job                Job?
+  projectDetail      ProjectDetail?
+  communicationLogs  CommunicationLog[]
+  supportTickets     SupportTicket[]
+  callLogs           CallLog[]
+
+  @@index([jobNumber])
+  @@index([customerId])
+  @@index([vehicleType])
+}
+
+model Quote {
+  id                  String     @id @default(uuid())
+  jobRequestId        String
+  jobRequest          JobRequest @relation(fields: [jobRequestId], references: [id], onDelete: Cascade)
+  version             Int        @default(1)
+  priceBreakdownJson  Json
+  totalMinorUnits     BigInt     // Stored in Pesewas (e.g., GHS 6,850.00 = 685000)
+  depositMinorUnits   BigInt     // Stored in Pesewas
+  currency            String     @default("GHS")
+  validUntil          DateTime
+  status              String     @default("QUOTE_SENT") // QUOTE_SENT, ACCEPTED, DECLINED, EXPIRED
+  createdById         String?
+  createdBy           User?      @relation("AdminCreatedQuotes", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  job                 Job?
+  revisions           QuotationRevision[]
+  invoices            Invoice[]
+
+  @@index([jobRequestId])
+  @@index([status])
+}
+
+model Job {
+  id                  String      @id @default(uuid())
+  jobNumber           String      @unique
+  jobRequestId        String      @unique
+  jobRequest          JobRequest  @relation(fields: [jobRequestId], references: [id], onDelete: Restrict)
+  quoteId             String      @unique
+  quote               Quote       @relation(fields: [quoteId], references: [id], onDelete: Restrict)
+  truckId             String?
+  truck               Truck?      @relation(fields: [truckId], references: [id], onDelete: SetNull)
+  driverId            String?
+  driver              Provider?   @relation("DriverAssignedJobs", fields: [driverId], references: [id], onDelete: SetNull)
+  status              JobStatus   @default(BOOKED)
+
+  // Delivery confirmation code (4 digits)
+  deliveryCode        String
+
+  // Status timestamps
+  requestedAt         DateTime?
+  pricedAt            DateTime?
+  quoteSentAt         DateTime?
+  bookedAt            DateTime?
+  assignedAt          DateTime?
+  headingToPickupAt   DateTime?
+  loadedAt            DateTime?
+  inTransitAt         DateTime?
+  deliveredAt         DateTime?
+  completedAt         DateTime?
+  cancelledAt         DateTime?
+  cancellationReason  String?
+  cancelledById       String?
+
+  // Photographic Proof
+  loadingProofPhotoKey   String?
+  deliveryProofPhotoKey  String?
+
+  // Optimistic locking version
+  version             Int         @default(1)
+
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  deletedAt           DateTime?
+
+  offers              Offer[]
+  dispatchAssignments Assignment[]
+  rentalRecord        RentalRecord?
+  invoices            Invoice[]
+  payments            Payment[]
+  payouts             Payout[]
+  ratings             Rating[]
+  locationObservations DriverLocationObservation[]
+
+  @@index([jobNumber])
+  @@index([status])
+  @@index([truckId])
+  @@index([driverId])
+}
+
+model Offer {
+  id            String      @id @default(uuid())
+  jobId         String
+  job           Job         @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  truckId       String
+  truck         Truck       @relation(fields: [truckId], references: [id], onDelete: Cascade)
+  sentAt        DateTime    @default(now())
+  expiresAt     DateTime
+  status        OfferStatus @default(PENDING)
+  declineReason String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([jobId, truckId])
+  @@index([jobId])
+  @@index([truckId])
+  @@index([status])
+}
+
+model Payment {
+  id               String        @id @default(uuid())
+  jobId            String
+  job              Job           @relation(fields: [jobId], references: [id], onDelete: Restrict)
+  invoiceId        String?
+  invoice          Invoice?      @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  amountMinorUnits BigInt        // Stored in Pesewas
+  currency         String        @default("GHS")
+  method           PaymentMethod
+  providerRef      String?       @unique
+  idempotencyKey   String        @unique
+  status           PaymentStatus @default(PENDING)
+  confirmedById    String?
+  confirmedBy      User?         @relation("ConfirmedPayments", fields: [confirmedById], references: [id], onDelete: SetNull)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  ledgerEntries    LedgerEntry[]
+
+  @@index([jobId])
+  @@index([status])
+  @@index([providerRef])
+  @@index([idempotencyKey])
+}
+
+model Payout {
+  id                    String        @id @default(uuid())
+  providerId            String
+  provider              Provider      @relation(fields: [providerId], references: [id], onDelete: Restrict)
+  jobId                 String
+  job                   Job           @relation(fields: [jobId], references: [id], onDelete: Restrict)
+  grossMinorUnits       BigInt
+  commissionMinorUnits  BigInt
+  netMinorUnits         BigInt
+  currency              String        @default("GHS")
+  status                PaymentStatus @default(PENDING)
+  providerRef           String?
+  idempotencyKey        String?       @unique
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  ledgerEntries         LedgerEntry[]
+
+  @@index([providerId])
+  @@index([jobId])
+  @@index([status])
+}
+
+// ─── DOUBLE-ENTRY FINANCIAL LEDGER ───────────────────────────────────────────
+
+model LedgerEntry {
+  id               String          @id @default(uuid())
+  journalId        String?
+  accountCode      String          // E.g. "CUSTOMER_DEPOSITS", "COMMISSION_REVENUE", "DRIVER_PAYABLE"
+  entryType        LedgerEntryType
+  amountMinorUnits BigInt
+  currency         String          @default("GHS")
+  paymentId        String?
+  payment          Payment?        @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  payoutId         String?
+  payout           Payout?         @relation(fields: [payoutId], references: [id], onDelete: SetNull)
+  description      String
+  createdAt        DateTime        @default(now())
+
+  @@index([journalId])
+  @@index([accountCode])
+  @@index([paymentId])
+  @@index([payoutId])
+}
+
+model DriverLocationObservation {
+  id         String   @id @default(uuid())
+  truckId    String
+  truck      Truck    @relation(fields: [truckId], references: [id], onDelete: Cascade)
+  jobId      String?
+  job        Job?     @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  latitude   Decimal  @db.Decimal(10, 7)
+  longitude  Decimal  @db.Decimal(10, 7)
+  heading    Decimal? @db.Decimal(6, 2)
+  speed      Decimal? @db.Decimal(6, 2)
+  accuracy   Decimal? @db.Decimal(7, 2)
+  recordedAt DateTime @default(now())
+
+  @@index([truckId, recordedAt])
+  @@index([jobId, recordedAt])
+}
+
+model PriceRule {
+  id               String      @id @default(uuid())
+  vehicleType      VehicleType
+  baseRateMinor    BigInt      // In pesewas
+  perKmMinor       BigInt
+  perTonneMinor    BigInt
+  minimumCharge    BigInt
+  surchargesJson   Json?
+  commissionPct    Decimal     @db.Decimal(5, 2) @default(15.00) // Default 15%
+  effectiveFrom    DateTime    @default(now())
+  version          Int         @default(1)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@index([vehicleType])
+  @@index([effectiveFrom])
+}
+
+model Expense {
+  id               String   @id @default(uuid())
+  category         String
+  amountMinorUnits BigInt
+  currency         String   @default("GHS")
+  date             DateTime
+  description      String
+  receiptKey       String?
+  enteredById      String
+  enteredBy        User     @relation("ExpensesEntered", fields: [enteredById], references: [id], onDelete: Restrict)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([category])
+  @@index([date])
+}
+
+model CallLog {
+  id           String      @id @default(uuid())
+  callerPhone  String
+  customerId   String?
+  customer     Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  agentId      String?
+  agent        User?       @relation("AgentCalls", fields: [agentId], references: [id], onDelete: SetNull)
+  direction    String      @default("INBOUND") // INBOUND / OUTBOUND
+  outcome      String?
+  linkedJobId  String?
+  linkedJob    JobRequest? @relation(fields: [linkedJobId], references: [id], onDelete: SetNull)
+  voiceNoteKey String?
+  durationSec  Int         @default(0)
+  createdAt    DateTime    @default(now())
+
+  @@index([callerPhone])
+  @@index([agentId])
+}
+
+model Rating {
+  id         String   @id @default(uuid())
+  jobId      String
+  job        Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  fromUserId String
+  fromUser   User     @relation("RatingsGiven", fields: [fromUserId], references: [id], onDelete: Restrict)
+  toUserId   String
+  toUser     User     @relation("RatingsReceived", fields: [toUserId], references: [id], onDelete: Restrict)
+  score      Int
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  @@index([jobId])
+  @@index([toUserId])
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  actorId     String?
+  actor       User?    @relation("UserAuditLogs", fields: [actorId], references: [id], onDelete: SetNull)
+  action      String   // E.g. "DOCUMENT_APPROVED", "PRICE_CHANGED", "DISPATCH_ASSIGNED"
+  entityName  String   // E.g. "Truck", "Quote", "Payment"
+  entityId    String
+  beforeState Json?
+  afterState  Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([actorId])
+  @@index([action])
+  @@index([entityName])
+  @@index([createdAt])
+}
+
+// ─── MANAGED LOGISTICS & MACHINERY RENTAL ENTITIES ───────────────────────────
+
+model CompanyStaff {
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  staffCode  String   @unique
+  department String
+  jobTitle   String
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model EquipmentCategory {
+  id          String               @id @default(uuid())
+  code        String               @unique
+  name        String
+  group       ServiceCategoryGroup
+  description String?
+  isActive    Boolean              @default(true)
+  sortOrder   Int                  @default(0)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  equipmentTypes EquipmentType[]
+
+  @@index([group])
+  @@index([isActive])
+}
+
+model EquipmentType {
+  id                String            @id @default(uuid())
+  categoryId        String
+  category          EquipmentCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  code              String            @unique
+  name              String
+  pricingModel      PricingModel      @default(PER_KM)
+  legacyVehicleType VehicleType?
+  baseRateMinor     BigInt            @default(0)
+  unitRateMinor     BigInt            @default(0)
+  mobilisationMinor BigInt            @default(0)
+  description       String?
+  isProvisional     Boolean           @default(false)
+  isActive          Boolean           @default(true)
+  metadataJson      Json?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  trucks      Truck[]
+  jobRequests JobRequest[]
+
+  @@index([categoryId])
+  @@index([isActive])
+}
+
+model ProjectDetail {
+  id                  String     @id @default(uuid())
+  jobRequestId        String     @unique
+  jobRequest          JobRequest @relation(fields: [jobRequestId], references: [id], onDelete: Cascade)
+  projectLocation     String
+  workDescription     String
+  startDate           DateTime
+  expectedDuration    Int
+  durationUnit        String     @default("DAYS") // HOURS | DAYS | WEEKS | MONTHS
+  workingCapacity     String?
+  siteAccessibility   String?
+  operatorRequired    Boolean    @default(true)
+  fuelArrangement     String     @default("COMPANY_SUPPLIED")
+  transportNeeded     Boolean    @default(true)
+  specialInstructions String?
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+}
+
+model QuotationRevision {
+  id                      String   @id @default(uuid())
+  quoteId                 String
+  quote                   Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  version                 Int
+  proposedTotalMinor      BigInt
+  transportChargeMinor    BigInt   @default(0)
+  rentalChargeMinor       BigInt   @default(0)
+  loadingChargeMinor      BigInt   @default(0)
+  mobilisationChargeMinor BigInt   @default(0)
+  operationalChargeMinor  BigInt   @default(0)
+  negotiationNotes        String?
+  createdById             String?
+  createdBy               User?    @relation("StaffQuotationRevisions", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt               DateTime @default(now())
+
+  @@unique([quoteId, version])
+  @@index([quoteId])
+}
+
+model Invoice {
+  id             String        @id @default(uuid())
+  invoiceNumber  String        @unique
+  kind           InvoiceKind   @default(PRO_FORMA)
+  quoteId        String
+  quote          Quote         @relation(fields: [quoteId], references: [id], onDelete: Restrict)
+  jobId          String?
+  job            Job?          @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  status         InvoiceStatus @default(ISSUED)
+  revisionNumber Int           @default(1)
+  subtotalMinor  BigInt
+  taxMinor       BigInt        @default(0)
+  totalMinor     BigInt
+  currency       String        @default("GHS")
+  expiresAt      DateTime
+  pdfKey         String?
+  notes          String?
+  issuedById     String?
+  issuedBy       User?         @relation("StaffIssuedInvoices", fields: [issuedById], references: [id], onDelete: SetNull)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  payments Payment[]
+
+  @@index([quoteId])
+  @@index([jobId])
+  @@index([status])
+}
+
+model Assignment {
+  id               String    @id @default(uuid())
+  jobId            String
+  job              Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  truckId          String
+  truck            Truck     @relation("AssetAssignments", fields: [truckId], references: [id], onDelete: Restrict)
+  driverId         String
+  driver           Provider  @relation("OperatorAssignments", fields: [driverId], references: [id], onDelete: Restrict)
+  assignedById     String?
+  assignedBy       User?     @relation("StaffAssignments", fields: [assignedById], references: [id], onDelete: SetNull)
+  scheduledStart   DateTime
+  scheduledEnd     DateTime?
+  operationalNotes String?
+  status           String    @default("ACTIVE") // ACTIVE | COMPLETED | REASSIGNED | CANCELLED
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([jobId])
+  @@index([truckId])
+  @@index([driverId])
+  @@index([status])
+}
+
+model RentalRecord {
+  id             String       @id @default(uuid())
+  jobId          String       @unique
+  job            Job          @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  status         RentalStatus @default(SCHEDULED)
+  mobilizedAt    DateTime?
+  arrivedSiteAt  DateTime?
+  workStartedAt  DateTime?
+  completedAt    DateTime?
+  returnedAt     DateTime?
+  loggedHours    Decimal      @default(0) @db.Decimal(8, 2)
+  operatorNotes  String?
+  proofPhotoKeys String[]     @default([])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model SupportTicket {
+  id           String              @id @default(uuid())
+  ticketNumber String              @unique
+  customerId   String
+  customer     User                @relation("CustomerSupportTickets", fields: [customerId], references: [id], onDelete: Restrict)
+  jobRequestId String?
+  jobRequest   JobRequest?         @relation(fields: [jobRequestId], references: [id], onDelete: SetNull)
+  subject      String
+  description  String
+  status       SupportTicketStatus @default(OPEN)
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  @@index([customerId])
+  @@index([status])
+}
+
+model CommunicationLog {
+  id           String     @id @default(uuid())
+  jobRequestId String
+  jobRequest   JobRequest @relation(fields: [jobRequestId], references: [id], onDelete: Cascade)
+  staffId      String?
+  staff        User?      @relation("StaffCommunicationLogs", fields: [staffId], references: [id], onDelete: SetNull)
+  channel      String     @default("PHONE") // PHONE | WHATSAPP | EMAIL | IN_APP
+  summary      String
+  createdAt    DateTime   @default(now())
+
+  @@index([jobRequestId])
+}
+

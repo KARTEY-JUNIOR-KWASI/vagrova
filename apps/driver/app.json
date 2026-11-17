@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "Vagrova Driver",
+    "slug": "vagrova-driver",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#141719"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#141719"
+      },
+      "package": "com.vagrova.driver"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Vagrova needs your location to match nearby haulage jobs and provide tracking while you are on a trip."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Vagrova needs camera access to capture proof of loading and delivery."
+        }
+      ]
+    ],
+    "scheme": "vagrova-driver"
+  }
+}
+

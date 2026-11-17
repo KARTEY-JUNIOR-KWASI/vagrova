@@ -1,0 +1,209 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-asphalt: #0D6D78;
+  --color-amber: #FFC600;
+  --color-amber-dark: #E0AE00;
+  --color-paper: #EBF2F3;
+  --color-white: #FFFFFF;
+  --color-cyan: #82CDE7;
+  --color-coastal: #43AEC5;
+  --color-green: #1E825A;
+  --color-red: #C0392B;
+  --color-grey: #4B6B70;
+  --color-grey-100: #EBF2F3;
+  --color-grey-200: #CFE0E3;
+  --color-grey-300: #82CDE7;
+  --font-heading: 'Archivo', 'Barlow Condensed', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+}
+
+html, body {
+  min-height: 100%;
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--color-asphalt);
+  background-color: var(--color-paper);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-amber);
+  outline-offset: 2px;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+input, select, textarea {
+  font-family: var(--font-body);
+  font-size: 16px;
+}
+
+/* ─── Purposeful Vagrova Motion ──────────────────────────────────────────── */
+@keyframes vagrovaLogoReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes vagrovaLogoPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  80% {
+    transform: scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes vagrovaSplashBar {
+  0% {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  100% {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+@keyframes vagrovaTruckRoll {
+  0% {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes vagrovaRoadDraw {
+  0% {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  100% {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+@keyframes vagrovaScreenSlide {
+  0% {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes vagrovaFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes vagrovaGpsPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(242, 169, 0, 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(242, 169, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(242, 169, 0, 0);
+  }
+}
+
+@keyframes vagrovaTruckTransit {
+  0% {
+    left: 22%;
+  }
+  50% {
+    left: 52%;
+  }
+  100% {
+    left: 22%;
+  }
+}
+
+.anim-logo-reveal {
+  animation: vagrovaLogoReveal 550ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.anim-logo-pop {
+  animation: vagrovaLogoPop 720ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.anim-splash-bar {
+  animation: vagrovaSplashBar 1750ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.anim-truck-roll {
+  animation: vagrovaTruckRoll 750ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both;
+}
+
+.anim-road-draw {
+  animation: vagrovaRoadDraw 650ms cubic-bezier(0.22, 1, 0.36, 1) 180ms both;
+}
+
+.anim-fade-up {
+  animation: vagrovaFadeUp 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.anim-screen-slide {
+  animation: vagrovaScreenSlide 240ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.anim-gps-pulse {
+  animation: vagrovaGpsPulse 2s infinite;
+}
+
+.anim-truck-transit {
+  animation: vagrovaTruckTransit 7s ease-in-out infinite;
+}
+
+.vagrova-card-tap {
+  transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.vagrova-card-tap:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(31, 35, 38, 0.08);
+}
+
+.vagrova-card-tap:active {
+  transform: scale(0.98);
+}
