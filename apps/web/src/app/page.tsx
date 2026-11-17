@@ -2660,19 +2660,20 @@ export default function CustomerOrderingApp() {
           <nav
             style={{
               position: 'fixed',
-              bottom: '12px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: 'calc(100% - 28px)',
-              maxWidth: '432px',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              margin: '0 auto',
+              width: '100%',
+              maxWidth: '460px',
               backgroundColor: colors.asphalt,
-              borderRadius: '8px',
-              padding: '6px',
+              borderTop: `1px solid ${colors.asphaltLight}`,
+              padding: '8px 10px calc(8px + env(safe-area-inset-bottom, 0px))',
               display: 'grid',
               gridTemplateColumns: '1fr 1fr 1fr 1.2fr',
               gap: '4px',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
-              zIndex: 40,
+              boxShadow: '0 -6px 20px rgba(13, 109, 120, 0.16)',
+              zIndex: 50,
             }}
           >
             <button
