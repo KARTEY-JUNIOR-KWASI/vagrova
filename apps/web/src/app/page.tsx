@@ -52,6 +52,7 @@ import {
 } from '@vagrova/ui';
 import { vagrovaApi } from '@/lib/api';
 import { connectTrackingSocket } from '@/lib/socket';
+import TruckApproachIntro from '@/components/TruckApproachIntro';
 
 const RouteMap = dynamic(() => import('@/components/RouteMap'), {
   ssr: false,
@@ -172,14 +173,6 @@ export default function CustomerOrderingApp() {
     }
   }, [screen]);
 
-  useEffect(() => {
-    if (screen !== 'splash') return;
-    const timer = setTimeout(() => {
-      setScreen('welcome');
-    }, 1850);
-    return () => clearTimeout(timer);
-  }, [screen]);
-
   // First-time User Auth & Profile State
   const [authPhone, setAuthPhone] = useState('');
   const [authOtp, setAuthOtp] = useState('');
@@ -282,74 +275,10 @@ export default function CustomerOrderingApp() {
         }}
       >
         {/* ════════════════════════════════════════════════════════════════════
-            SCREEN 0A: ANIMATED LOGO SPLASH SCREEN
+            SCREEN 0A: REALISTIC TRUCK APPROACH + HEADLIGHT BLOOM LOGO INTRO
            ════════════════════════════════════════════════════════════════════ */}
         {screen === 'splash' && (
-          <div
-            onClick={() => setScreen('welcome')}
-            style={{
-              flex: 1,
-              minHeight: '100vh',
-              backgroundColor: colors.roadWhite,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '32px',
-              cursor: 'pointer',
-              position: 'relative',
-            }}
-          >
-            <div
-              className="anim-logo-pop"
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '18px',
-              }}
-            >
-              <img
-                src="/vagrova-logo.png"
-                alt="Vagrova"
-                style={{ width: '240px', maxWidth: '72vw', height: 'auto', display: 'block' }}
-              />
-              <div
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  letterSpacing: '0.18em',
-                  color: colors.gravelGrey,
-                  textTransform: 'uppercase',
-                }}
-              >
-                Heavy Haulage · Ghana
-              </div>
-            </div>
-
-            <div
-              style={{
-                position: 'absolute',
-                bottom: '44px',
-                width: '140px',
-                height: '4px',
-                borderRadius: '999px',
-                backgroundColor: colors.grey100,
-                overflow: 'hidden',
-              }}
-            >
-              <div
-                className="anim-splash-bar"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  backgroundColor: colors.safetyAmber,
-                  borderRadius: '999px',
-                }}
-              />
-            </div>
-          </div>
+          <TruckApproachIntro onComplete={() => setScreen('welcome')} />
         )}
 
         {/* ════════════════════════════════════════════════════════════════════
