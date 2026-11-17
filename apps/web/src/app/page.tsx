@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
+import PriceEstimateCard, { formatGhs, getRateGhs } from '@/components/PriceEstimateCard';
 import {
   Phone,
   Mic,
@@ -146,6 +147,13 @@ export default function CustomerOrderingApp() {
 
   const [isReturningClient, setIsReturningClient] = useState(false);
   const [totalTrips, setTotalTrips] = useState(0);
+
+  const selectedEquipmentObj =
+    equipmentCatalog
+      .flatMap((cat) => cat.equipmentTypes || [])
+      .find((eq: any) => eq.id === selectedEquipmentId || eq.name === selectedEquipmentName) || {
+      name: selectedEquipmentName,
+    };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -1691,8 +1699,18 @@ export default function CustomerOrderingApp() {
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '11px', fontWeight: 700, color: colors.asphalt }}>Request</div>
-                        <div style={{ fontSize: '11px', color: colors.gravelGrey }}>Quote →</div>
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 800, color: colors.asphalt }}>
+                          {formatGhs(getRateGhs(eq).base)}
+                        </div>
+                        <div style={{ fontSize: '10px', color: colors.gravelGrey }}>
+                          {eq.pricingModel === 'DAILY'
+                            ? '/ day'
+                            : eq.pricingModel === 'HOURLY'
+                            ? `+ ${formatGhs(getRateGhs(eq).unit)}/hr`
+                            : eq.pricingModel === 'PER_KM'
+                            ? `+ ${formatGhs(getRateGhs(eq).unit)}/km`
+                            : 'Base rate'}
+                        </div>
                       </div>
                     </button>
                   );
@@ -2077,6 +2095,13 @@ export default function CustomerOrderingApp() {
                 ))}
               </div>
 
+              <PriceEstimateCard
+                equipment={selectedEquipmentObj}
+                mode="TRANSPORT"
+                pickupAddress={pickupAddress}
+                deliveryAddress={deliveryAddress}
+              />
+
               <button
                 disabled={requestSubmitting}
                 onClick={async () => {
@@ -2307,6 +2332,14 @@ export default function CustomerOrderingApp() {
                 <input value={specialInstructions} onChange={(e) => setSpecialInstructions(e.target.value)} placeholder="Safety permits, site contact, shift hours..." style={{ width: '100%', height: '42px', padding: '0 12px', borderRadius: '6px', border: `1px solid ${colors.grey200}`, backgroundColor: colors.waybillPaper }} />
               </div>
 
+              <PriceEstimateCard
+                equipment={selectedEquipmentObj}
+                mode="MACHINERY"
+                durationValue={expectedDuration}
+                durationUnit={durationUnit}
+                includeMobilisation={transportNeeded}
+              />
+
               <button
                 disabled={requestSubmitting}
                 onClick={async () => {
@@ -2437,6 +2470,12 @@ export default function CustomerOrderingApp() {
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: colors.gravelGrey, textTransform: 'uppercase', marginBottom: '4px' }}>Cargo Description</label>
                 <textarea rows={2} value={loadDescription} onChange={(e) => setLoadDescription(e.target.value)} style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: `1px solid ${colors.grey200}`, backgroundColor: colors.waybillPaper }} />
               </div>
+
+              <PriceEstimateCard
+                equipment={selectedEquipmentObj}
+                mode="CARGO_STATION"
+                stagingDays={stationStagingDays}
+              />
 
               <button
                 disabled={requestSubmitting}
