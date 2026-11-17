@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import PriceEstimateCard, { formatGhs, getRateGhs } from '@/components/PriceEstimateCard';
+import LiveTrackingView from '@/components/LiveTrackingView';
 import {
   Phone,
   Mic,
@@ -2718,68 +2719,16 @@ export default function CustomerOrderingApp() {
             SCREEN 7: LIVE TRACKING
            ════════════════════════════════════════════════════════════════════ */}
         {screen === 'tracking' && (
-          <div className="anim-screen-slide" style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingBottom: '84px' }}>
-            <header style={{ backgroundColor: colors.roadWhite, padding: '14px 16px', borderBottom: `1px solid ${colors.grey200}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <button onClick={() => setScreen('home')} style={{ width: '36px', height: '36px', borderRadius: '4px', border: `1px solid ${colors.grey200}`, backgroundColor: colors.grey100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <ArrowLeft size={18} />
-              </button>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', fontWeight: 700 }}>VGJ-004819</span>
-              <StatusChip status="heading_to_pickup" size="sm" />
-            </header>
-
-            <div style={{ padding: '16px' }}>
-              <div style={{ height: '220px', backgroundColor: '#E0DBD0', border: `1px solid ${colors.grey300}`, borderRadius: '6px', position: 'relative', overflow: 'hidden', marginBottom: '12px' }}>
-                <div style={{ position: 'absolute', top: '10px', left: '10px', backgroundColor: colors.asphalt, color: colors.roadWhite, padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px', zIndex: 1000 }}>
-                  <Navigation size={12} color={colors.safetyAmber} /> Live GPS · Updated 20s ago
-                </div>
-                <RouteMap height="220px" showLiveTruck={true} liveCoords={liveCoords} pickupLabel="Pickup · Kasoa/N1" dropoffLabel="Dropoff · Tema Port" />
-              </div>
-
-              <div style={{ backgroundColor: colors.roadWhite, borderLeft: `4px solid ${colors.safetyAmber}`, border: `1px solid ${colors.grey200}`, borderRadius: '6px', padding: '14px', marginBottom: '12px' }}>
-                <div style={{ fontFamily: 'var(--font-heading)', fontSize: '18px', fontWeight: 700 }}>
-                  {liveTripStatus ? `Status: ${liveTripStatus}` : 'Driver is 12 km from pickup'}
-                </div>
-                <div style={{ fontSize: '13px', color: colors.gravelGrey, marginTop: '2px' }}>Estimated arrival in 28 minutes</div>
-              </div>
-
-              <div style={{ backgroundColor: colors.roadWhite, border: `1px solid ${colors.grey200}`, borderRadius: '6px', padding: '14px', marginBottom: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ width: '44px', height: '44px', borderRadius: '999px', backgroundColor: colors.waybillPaper, border: `2px solid ${colors.asphalt}`, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      {driverPhotoUrl ? (
-                        <img src={driverPhotoUrl} alt={driverDisplayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        <User size={20} color={colors.asphalt} />
-                      )}
-                    </div>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'var(--font-heading)', fontSize: '17px', fontWeight: 700 }}>
-                        {driverDisplayName} <ShieldCheck size={16} color={colors.weighbridgeGreen} />
-                      </div>
-                      <div style={{ fontSize: '13px', color: colors.gravelGrey }}>MAN TGS 33.400 · Flatbed 40t</div>
-                    </div>
-                  </div>
-                  <a href="tel:0248812290" style={{ backgroundColor: colors.grey100, border: `1px solid ${colors.grey300}`, borderRadius: '4px', padding: '8px 12px', color: colors.asphalt, textDecoration: 'none', fontSize: '13px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                    <Phone size={14} /> Call
-                  </a>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: `1px solid ${colors.grey200}`, paddingTop: '10px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: colors.gravelGrey }}>VEHICLE PLATE</span>
-                  <PlateNumber plate="GW-2290-22" size="sm" />
-                </div>
-              </div>
-
-              <div style={{ backgroundColor: colors.asphalt, color: colors.roadWhite, borderRadius: '6px', padding: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div>
-                  <div style={{ fontSize: '11px', fontWeight: 700, color: colors.safetyAmber }}>DELIVERY CONFIRMATION CODE</div>
-                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.75)', marginTop: '2px' }}>Give to driver after offloading</div>
-                </div>
-                <div style={{ backgroundColor: colors.safetyAmber, color: colors.asphalt, fontFamily: 'var(--font-mono)', fontSize: '22px', fontWeight: 700, letterSpacing: '0.15em', padding: '6px 12px', borderRadius: '4px' }}>
-                  7428
-                </div>
-              </div>
-            </div>
-          </div>
+          <LiveTrackingView
+            jobNumber={submittedJobNumber || 'VGJ-004819'}
+            pickupLabel={pickupAddress || 'Pickup · Kasoa/N1'}
+            dropoffLabel={deliveryAddress || 'Dropoff · Tema Port'}
+            liveCoords={liveCoords}
+            liveTripStatus={liveTripStatus}
+            driverName={driverDisplayName}
+            driverPhotoUrl={driverPhotoUrl}
+            onBack={() => setScreen('home')}
+          />
         )}
 
         {/* ════════════════════════════════════════════════════════════════════
