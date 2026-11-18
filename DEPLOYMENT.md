@@ -14,6 +14,9 @@
   - `SMS_API_KEY` = *(SMSOnlineGH API key)*
   - `SMS_SENDER_ID` = `VAGROVA`
   - `ADMIN_ALERT_PHONE` = *(Admin phone for instant order alerts)*
+  - `CLOUDINARY_CLOUD_NAME` = *(optional — enables permanent cloud photo & document storage)*
+  - `CLOUDINARY_API_KEY` = *(optional — Cloudinary API key)*
+  - `CLOUDINARY_API_SECRET` = *(optional — Cloudinary API secret)*
 
 ---
 
