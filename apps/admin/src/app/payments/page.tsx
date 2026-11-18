@@ -4,12 +4,16 @@ import React, { useState } from 'react';
 import { CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
 import { AdminShell } from '@/components/AdminShell';
 
-const INITIAL_PAYMENTS = [
-  { ref: 'VG-DEP-179481', job: 'VGJ-004819', payer: 'James Ofori', kind: 'Deposit (50%)', method: 'MTN MoMo', amountGHS: '3,425.00', status: 'CONFIRMED', date: '16 Nov 2026 09:42' },
-  { ref: 'VG-DEP-179479', job: 'VGJ-004825', payer: 'Volta Steel Works', kind: 'Deposit (50%)', method: 'Bank Transfer', amountGHS: '3,225.00', status: 'PROCESSING', date: '16 Nov 2026 09:10' },
-  { ref: 'VG-PAYOUT-179450', job: 'VGJ-004818', payer: 'Kofi Mensah (Carrier)', kind: 'Provider Payout', method: 'MTN MoMo', amountGHS: '4,080.00', status: 'CONFIRMED', date: '15 Nov 2026 18:15' },
-  { ref: 'VG-DEP-179412', job: 'VGJ-004817', payer: 'ATC Ghana Ltd', kind: 'Balance Held', method: 'Bank Transfer', amountGHS: '6,850.00', status: 'DISPUTED_HOLD', date: '15 Nov 2026 14:20' },
-];
+const INITIAL_PAYMENTS: Array<{
+  ref: string;
+  job: string;
+  payer: string;
+  kind: string;
+  method: string;
+  amountGHS: string;
+  status: string;
+  date: string;
+}> = [];
 
 export default function PaymentsPage() {
   const [payments, setPayments] = useState(INITIAL_PAYMENTS);

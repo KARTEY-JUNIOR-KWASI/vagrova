@@ -27,39 +27,14 @@ interface MatchingTruck {
   status: 'available' | 'busy';
 }
 
-const UNASSIGNED_JOBS: UnassignedJob[] = [
-  {
-    id: 'VGJ-004825',
-    customer: 'Volta Steel Works',
-    vehicleNeeded: 'Flatbed',
-    weight: '18.0 tonnes',
-    pickup: 'Tema Port, Gate 4',
-    delivery: 'Spintex Industrial',
-    pickupTime: 'Today 14:00 (in 1 hr 45 min)',
-    urgency: 'critical',
-  },
-  {
-    id: 'VGJ-004826',
-    customer: 'Mensah Quarrries',
-    vehicleNeeded: 'Tipper',
-    weight: '30.0 tonnes',
-    pickup: 'Kasoa North Quarry',
-    delivery: 'Pokuesi Interchange',
-    pickupTime: 'Tomorrow 07:00',
-    urgency: 'normal',
-  },
-];
+const UNASSIGNED_JOBS: UnassignedJob[] = [];
 
-const CANDIDATE_TRUCKS: MatchingTruck[] = [
-  { id: 'TRK-01', ownerDriver: 'Yaw Boateng (Owner-Driver)', plate: 'GW-2290-22', type: 'Flatbed', capacityTonnes: 40, distanceKm: 6.2, rating: 4.9, status: 'available' },
-  { id: 'TRK-02', ownerDriver: 'Kwame Asante (Fleet Driver)', plate: 'GR-4521-23', type: 'Flatbed', capacityTonnes: 35, distanceKm: 8.5, rating: 4.8, status: 'available' },
-  { id: 'TRK-03', ownerDriver: 'Kofi Mensah', plate: 'GT-8812-21', type: 'Flatbed', capacityTonnes: 30, distanceKm: 14.1, rating: 4.7, status: 'available' },
-];
+const CANDIDATE_TRUCKS: MatchingTruck[] = [];
 
 export default function DispatchPage() {
-  const [jobs, setJobs] = useState<UnassignedJob[]>(UNASSIGNED_JOBS);
-  const [selectedJob, setSelectedJob] = useState<UnassignedJob>(UNASSIGNED_JOBS[0]);
-  const [selectedTrucks, setSelectedTrucks] = useState<string[]>(['TRK-01', 'TRK-02']);
+  const [jobs, setJobs] = useState<UnassignedJob[]>([]);
+  const [selectedJob, setSelectedJob] = useState<UnassignedJob | null>(null);
+  const [selectedTrucks, setSelectedTrucks] = useState<string[]>([]);
   const [liveMode, setLiveMode] = useState(false);
 
   useEffect(() => {
@@ -97,6 +72,7 @@ export default function DispatchPage() {
   };
 
   const handleSendOffers = async () => {
+    if (!selectedJob) return;
     if (liveMode) {
       try {
         await adminApi.broadcastOffers(selectedJob.id, selectedTrucks, '500000');
@@ -133,12 +109,17 @@ export default function DispatchPage() {
           {/* Left: Unassigned Jobs Queue */}
           <div>
             <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6B7075', marginBottom: '10px' }}>
-              Unassigned Booked Jobs ({UNASSIGNED_JOBS.length})
+              Unassigned Booked Jobs ({jobs.length})
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {UNASSIGNED_JOBS.map((job) => {
-                const isSelected = selectedJob.id === job.id;
+              {jobs.length === 0 && (
+                <div className="card" style={{ padding: '20px', textAlign: 'center', color: '#6B7075', fontSize: '13px' }}>
+                  No unassigned jobs in database yet.
+                </div>
+              )}
+              {jobs.map((job) => {
+                const isSelected = selectedJob?.id === job.id;
                 return (
                   <div
                     key={job.id}
@@ -191,13 +172,13 @@ export default function DispatchPage() {
                     SELECTED JOB SPECIFICATION
                   </span>
                   <div style={{ fontFamily: '"Archivo", sans-serif', fontSize: '18px', fontWeight: 700, color: '#0D6D78' }}>
-                    {selectedJob.id} — {selectedJob.customer}
+                    {selectedJob ? `${selectedJob.id} — ${selectedJob.customer}` : 'No job selected'}
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: '11px', color: '#6B7075' }}>REQUIRED EQUIPMENT</div>
                   <div style={{ fontWeight: 700, color: '#FFC600', fontSize: '14px' }}>
-                    {selectedJob.vehicleNeeded} ({selectedJob.weight})
+                    {selectedJob ? `${selectedJob.vehicleNeeded} (${selectedJob.weight})` : '—'}
                   </div>
                 </div>
               </div>
@@ -270,7 +251,7 @@ export default function DispatchPage() {
                           <button
                             className="btn-secondary"
                             style={{ height: '28px', fontSize: '11px', padding: '0 8px' }}
-                            onClick={() => alert(`Direct assigned ${truck.plate} to ${selectedJob.id}`)}
+                            onClick={() => alert(`Direct assigned ${truck.plate} to ${selectedJob?.id || 'job'}`)}
                           >
                             Direct Assign
                           </button>

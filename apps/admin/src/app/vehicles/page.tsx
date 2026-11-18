@@ -5,13 +5,17 @@ import { Truck, AlertTriangle, CheckCircle2, Clock, Plus } from 'lucide-react';
 import { AdminShell } from '@/components/AdminShell';
 import { adminApi } from '@/lib/api';
 
-const VEHICLES = [
-  { plate: 'GW-2290-22', type: 'Flatbed', makeModel: 'MAN TGS 33.400', capacity: '40t', owner: 'Yaw Boateng', status: 'AVAILABLE', roadworthyExp: '28 Aug 2027', insuranceExp: '08 Dec 2026', jobs: 48 },
-  { plate: 'GR-4521-23', type: 'Container Carrier', makeModel: 'DAF XF 105', capacity: '40ft', owner: 'Volta Haulage Ltd', status: 'BUSY', roadworthyExp: '14 May 2027', insuranceExp: '19 Nov 2027', jobs: 92 },
-  { plate: 'GT-8812-21', type: 'Refrigerated', makeModel: 'Mercedes Actros', capacity: '20t', owner: 'Kofi Mensah', status: 'AVAILABLE', roadworthyExp: '02 Feb 2027', insuranceExp: '02 Feb 2027', jobs: 31 },
-  { plate: 'GS-6672-23', type: 'Lowbed', makeModel: 'HOWO Sinotruk 6x4', capacity: '60t', owner: 'Ama Boateng', status: 'BLOCKED_EXPIRED_DOCS', roadworthyExp: '01 Nov 2026', insuranceExp: '12 Jun 2027', jobs: 19 },
-  { plate: 'GE-1104-24', type: 'Tipper', makeModel: 'Shacman F3000', capacity: '30t', owner: 'Mensah Fleet', status: 'OFFLINE', roadworthyExp: '30 Sep 2027', insuranceExp: '30 Sep 2027', jobs: 64 },
-];
+const VEHICLES: Array<{
+  plate: string;
+  type: string;
+  makeModel: string;
+  capacity: string;
+  owner: string;
+  status: string;
+  roadworthyExp: string;
+  insuranceExp: string;
+  jobs: number;
+}> = [];
 
 export default function VehiclesPage() {
   const [filter, setFilter] = useState('ALL');

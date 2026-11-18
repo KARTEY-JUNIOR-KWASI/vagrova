@@ -1,42 +1,8 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import { AdminShell } from '@/components/AdminShell';
-
-// ─── Mock data ────────────────────────────────────────────────────────────────
-
-const ACTION_ITEMS = [
-  { label: 'New Quote Requests', count: 7, color: '#FFC600', href: '/quotations' },
-  { label: 'Call-backs Waiting', count: 3, color: '#B3391B', href: '/call-center' },
-  { label: 'Providers Pending Verification', count: 4, color: '#FFC600', href: '/verification' },
-  { label: 'Jobs Without a Truck', count: 2, color: '#B3391B', href: '/dispatch' },
-  { label: 'Documents Expiring This Week', count: 1, color: '#FFC600', href: '/vehicles' },
-  { label: 'Payments to Confirm', count: 5, color: '#FFC600', href: '/payments' },
-];
-
-const METRICS_TODAY = [
-  { label: 'Jobs Requested', value: '14' },
-  { label: 'Quotes Sent', value: '9' },
-  { label: 'Booked', value: '6' },
-  { label: 'Completed', value: '4' },
-  { label: 'Revenue (GHS)', value: '48,200' },
-  { label: 'Commission (GHS)', value: '7,230' },
-];
-
-const METRICS_MONTH = [
-  { label: 'Jobs Total', value: '312' },
-  { label: 'Completion Rate', value: '88%' },
-  { label: 'Revenue (GHS)', value: '1,042,800' },
-  { label: 'Commission (GHS)', value: '156,420' },
-  { label: 'Active Trucks', value: '47' },
-  { label: 'Active Customers', value: '84' },
-];
-
-const RECENT_JOBS = [
-  { id: 'VGJ-004821', customer: 'Accra Ready Mix Ltd', route: 'Tema Port → Spintex Rd', vehicle: 'Container Carrier', status: 'In Transit', driver: 'Kwame Asante', plate: 'GR-4521-23' },
-  { id: 'VGJ-004820', customer: 'Mensah Construction', route: 'Accra → Kumasi', vehicle: 'Tipper', status: 'Being Priced', driver: '—', plate: '—' },
-  { id: 'VGJ-004819', customer: 'James Ofori', route: 'Kasoa → Accra', vehicle: 'Flatbed', status: 'Booked', driver: 'Yaw Boateng', plate: 'GW-2290-22' },
-  { id: 'VGJ-004818', customer: 'Volta Farms Co.', route: 'Ho → Accra', vehicle: 'Refrigerated', status: 'Completed', driver: 'Kofi Mensah', plate: 'GT-8812-21' },
-  { id: 'VGJ-004817', customer: 'ATC Ghana Ltd', route: 'Accra → Takoradi', vehicle: 'Lowbed', status: 'Disputed', driver: 'Ama Boateng', plate: 'GS-6672-23' },
-];
+import { adminApi } from '@/lib/api';
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; edge: string }> = {
   'In Transit':    { bg: '#D4EEE0', text: '#1C5235', edge: '#2E7D4F' },
@@ -51,6 +17,52 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; edge: string }> 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
+  const [recentJobs, setRecentJobs] = useState<any[]>([]);
+  const [quoteCount, setQuoteCount] = useState(0);
+
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('vagrova_admin_token') : null;
+    if (!token) return;
+    adminApi.listAdminJobs().then((rows) => { if (Array.isArray(rows)) setRecentJobs(rows); }).catch(() => {});
+    adminApi.getQuotesQueue().then((rows) => { if (Array.isArray(rows)) setQuoteCount(rows.length); }).catch(() => {});
+  }, []);
+
+  const ACTION_ITEMS = [
+    { label: 'New Quote Requests', count: quoteCount, color: '#FFC600', href: '/quotations' },
+    { label: 'Call-backs Waiting', count: 0, color: '#B3391B', href: '/call-center' },
+    { label: 'Providers Pending Verification', count: 0, color: '#FFC600', href: '/verification' },
+    { label: 'Jobs Without a Truck', count: recentJobs.filter((j) => !j.assignments?.length).length, color: '#B3391B', href: '/dispatch' },
+    { label: 'Documents Expiring This Week', count: 0, color: '#FFC600', href: '/vehicles' },
+    { label: 'Payments to Confirm', count: 0, color: '#FFC600', href: '/payments' },
+  ];
+
+  const METRICS_TODAY = [
+    { label: 'Jobs Requested', value: String(quoteCount) },
+    { label: 'Quotes Sent', value: '0' },
+    { label: 'Booked', value: String(recentJobs.length) },
+    { label: 'Completed', value: String(recentJobs.filter((j) => j.status === 'COMPLETED').length) },
+    { label: 'Revenue (GHS)', value: '0' },
+    { label: 'Commission (GHS)', value: '0' },
+  ];
+
+  const METRICS_MONTH = [
+    { label: 'Jobs Total', value: String(recentJobs.length) },
+    { label: 'Completion Rate', value: recentJobs.length ? `${Math.round((recentJobs.filter((j) => j.status === 'COMPLETED').length / recentJobs.length) * 100)}%` : '0%' },
+    { label: 'Revenue (GHS)', value: '0' },
+    { label: 'Commission (GHS)', value: '0' },
+    { label: 'Active Trucks', value: '0' },
+    { label: 'Active Customers', value: '0' },
+  ];
+
+  const RECENT_JOBS = recentJobs.slice(0, 10).map((j: any) => ({
+    id: j.jobRequest?.jobNumber || j.id,
+    customer: j.jobRequest?.customer?.user?.name || 'Customer',
+    route: `${j.jobRequest?.pickupAddress || 'Pickup'} → ${j.jobRequest?.deliveryAddress || 'Dropoff'}`,
+    vehicle: j.jobRequest?.equipmentType?.name || j.jobRequest?.vehicleType || 'Truck',
+    status: j.status || 'Requested',
+    driver: j.assignments?.[0]?.driver?.user?.name || '—',
+    plate: j.assignments?.[0]?.vehicle?.plateNumber || '—',
+  }));
   return (
     <AdminShell>
       <div style={{ maxWidth: '1400px' }}>

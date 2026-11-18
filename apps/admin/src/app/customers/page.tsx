@@ -4,12 +4,16 @@ import React, { useState } from 'react';
 import { Building2, User as UserIcon, Flag } from 'lucide-react';
 import { AdminShell } from '@/components/AdminShell';
 
-const CUSTOMERS = [
-  { id: 'CUS-1042', name: 'Accra Ready Mix Ltd', type: 'COMPANY', phone: '+233 24 410 9988', jobs: 28, balanceGHS: '0.00', notes: 'Prefers Tema Port morning slots', flagged: false },
-  { id: 'CUS-1041', name: 'Mensah Construction', type: 'COMPANY', phone: '+233 24 450 1234', jobs: 14, balanceGHS: '3,425.00', notes: 'Balance due on VGJ-004820', flagged: false },
-  { id: 'CUS-1039', name: 'James Ofori', type: 'INDIVIDUAL', phone: '+233 55 782 9900', jobs: 3, balanceGHS: '0.00', notes: 'Site access requires 4x4 escort in rainy season', flagged: false },
-  { id: 'CUS-1035', name: 'ATC Ghana Ltd', type: 'COMPANY', phone: '+233 20 100 4455', jobs: 19, balanceGHS: '6,850.00', notes: 'Disputed waiting-time invoice on VGJ-004817', flagged: true },
-];
+const CUSTOMERS: Array<{
+  id: string;
+  name: string;
+  type: string;
+  phone: string;
+  jobs: number;
+  balanceGHS: string;
+  notes: string;
+  flagged: boolean;
+}> = [];
 
 export default function CustomersPage() {
   const [search, setSearch] = useState('');
