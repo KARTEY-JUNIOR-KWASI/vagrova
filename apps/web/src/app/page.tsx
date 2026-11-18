@@ -116,17 +116,19 @@ export default function CustomerOrderingApp() {
   const [screen, setScreen] = useState<Screen>('splash');
   const [language, setLanguage] = useState<'EN' | 'TWI' | 'GA'>('EN');
   const [driverPhotoUrl, setDriverPhotoUrl] = useState<string | null>(null);
-  const [driverDisplayName, setDriverDisplayName] = useState('Yaw Boateng');
+  const [driverDisplayName, setDriverDisplayName] = useState('');
   const [liveCoords, setLiveCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [liveTripStatus, setLiveTripStatus] = useState<string | null>(null);
-  const [activeJobId] = useState<string | null>(null);
+  const [activeJobId, setActiveJobId] = useState<string | null>(null);
+  const [myJobs, setMyJobs] = useState<any[]>([]);
+  const [selectedTrackingJob, setSelectedTrackingJob] = useState<any | null>(null);
 
   // Managed Equipment Catalog & Category A/B Request State
   const [serviceGroup, setServiceGroup] = useState<'TRANSPORT' | 'MACHINERY'>('TRANSPORT');
   const [equipmentCatalog, setEquipmentCatalog] = useState<any[]>([]);
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
   const [selectedEquipmentName, setSelectedEquipmentName] = useState<string>('Excavator');
-  const [submittedJobNumber, setSubmittedJobNumber] = useState<string>('VGJ-004830');
+  const [submittedJobNumber, setSubmittedJobNumber] = useState<string>('');
   const [requestSubmitting, setRequestSubmitting] = useState(false);
 
   const [projectLocation, setProjectLocation] = useState('Tarkwa Mining Concession, Western Region');
@@ -222,15 +224,20 @@ export default function CustomerOrderingApp() {
         vagrovaApi
           .getMyJobs(savedToken)
           .then((jobs) => {
-            if (Array.isArray(jobs) && jobs.length > 0) {
-              const latest = jobs[0];
-              saveLastBooking({
-                equipmentId: latest.equipmentTypeId || null,
-                equipmentName: latest.equipmentType?.name || latest.vehicleType || 'Flatbed Truck',
-                serviceGroup: latest.serviceGroup === 'MACHINERY' ? 'MACHINERY' : 'TRANSPORT',
-                pickupAddress: latest.pickupAddress || 'Tema Port',
-                deliveryAddress: latest.deliveryAddress || 'Accra',
-              });
+            if (Array.isArray(jobs)) {
+              setMyJobs(jobs);
+              if (jobs.length > 0) {
+                const latest = jobs[0];
+                setSelectedTrackingJob(latest);
+                setActiveJobId(latest.id);
+                saveLastBooking({
+                  equipmentId: latest.equipmentTypeId || null,
+                  equipmentName: latest.equipmentType?.name || latest.vehicleType || 'Flatbed Truck',
+                  serviceGroup: latest.serviceGroup === 'MACHINERY' ? 'MACHINERY' : 'TRANSPORT',
+                  pickupAddress: latest.pickupAddress || 'Tema Port',
+                  deliveryAddress: latest.deliveryAddress || 'Accra',
+                });
+              }
             }
           })
           .catch(() => {});
@@ -2718,18 +2725,45 @@ export default function CustomerOrderingApp() {
         {/* ════════════════════════════════════════════════════════════════════
             SCREEN 7: LIVE TRACKING
            ════════════════════════════════════════════════════════════════════ */}
-        {screen === 'tracking' && (
-          <LiveTrackingView
-            jobNumber={submittedJobNumber || 'VGJ-004819'}
-            pickupLabel={pickupAddress || 'Pickup · Kasoa/N1'}
-            dropoffLabel={deliveryAddress || 'Dropoff · Tema Port'}
-            liveCoords={liveCoords}
-            liveTripStatus={liveTripStatus}
-            driverName={driverDisplayName}
-            driverPhotoUrl={driverPhotoUrl}
-            onBack={() => setScreen('home')}
-          />
-        )}
+        {screen === 'tracking' && (() => {
+          const trackJob = selectedTrackingJob || myJobs[0] || null;
+          if (!trackJob && !submittedJobNumber) {
+            return (
+              <div style={{ flex: 1, padding: '24px 16px', paddingBottom: '88px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', gap: '12px' }}>
+                <Truck size={36} color={colors.asphalt} />
+                <div style={{ fontFamily: 'var(--font-heading)', fontSize: '20px', fontWeight: 700, color: colors.asphalt }}>
+                  No Active Trip Yet
+                </div>
+                <p style={{ fontSize: '13px', color: colors.gravelGrey, maxWidth: '280px' }}>
+                  Book a truck or equipment rental to track live dispatch and GPS updates here.
+                </p>
+                <button
+                  onClick={() => setScreen('home')}
+                  style={{ backgroundColor: colors.safetyAmber, color: colors.asphalt, border: 'none', borderRadius: '8px', padding: '10px 18px', fontWeight: 800, fontSize: '13px' }}
+                >
+                  Book a Truck
+                </button>
+              </div>
+            );
+          }
+          const assignedDriver = trackJob?.assignments?.[0]?.driver?.user?.name || driverDisplayName || 'Pending Dispatch';
+          const assignedPhone = trackJob?.assignments?.[0]?.driver?.user?.phone || '+233248812290';
+          const assignedPlate = trackJob?.assignments?.[0]?.vehicle?.plateNumber || 'PENDING';
+          return (
+            <LiveTrackingView
+              jobNumber={trackJob?.jobNumber || submittedJobNumber}
+              pickupLabel={trackJob?.pickupAddress || pickupAddress}
+              dropoffLabel={trackJob?.deliveryAddress || deliveryAddress}
+              liveCoords={liveCoords}
+              liveTripStatus={liveTripStatus || trackJob?.status || null}
+              driverName={assignedDriver}
+              driverPhotoUrl={driverPhotoUrl}
+              driverPhone={assignedPhone}
+              plateNumber={assignedPlate}
+              onBack={() => setScreen('home')}
+            />
+          );
+        })()}
 
         {/* ════════════════════════════════════════════════════════════════════
             SCREEN 8: MY JOBS
@@ -2737,19 +2771,54 @@ export default function CustomerOrderingApp() {
         {screen === 'jobs' && (
           <div style={{ flex: 1, padding: '16px', paddingBottom: '88px' }}>
             <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '22px', fontWeight: 700, marginBottom: '14px' }}>My Haulage Jobs</h1>
-            {[
-              { id: 'VGJ-004819', route: 'Kasoa → Accra Industrial Area', info: 'Flatbed · 14t · Yaw Boateng', status: 'heading_to_pickup' as const },
-              { id: 'VGJ-004804', route: 'Tema Port → Spintex Rd', info: 'Container Carrier · 40ft', status: 'completed' as const },
-            ].map((j) => (
-              <div key={j.id} onClick={() => setScreen('tracking')} style={{ backgroundColor: colors.roadWhite, border: `1px solid ${colors.grey200}`, borderRadius: '6px', padding: '14px', marginBottom: '10px', cursor: 'pointer' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>{j.id}</span>
-                  <StatusChip status={j.status} size="sm" />
+            {myJobs.length === 0 ? (
+              <div style={{ backgroundColor: colors.roadWhite, border: `1px solid ${colors.grey200}`, borderRadius: '10px', padding: '24px 16px', textAlign: 'center' }}>
+                <div style={{ fontFamily: 'var(--font-heading)', fontSize: '16px', fontWeight: 700, color: colors.asphalt, marginBottom: '6px' }}>
+                  No bookings yet
                 </div>
-                <div style={{ fontFamily: 'var(--font-heading)', fontSize: '16px', fontWeight: 700 }}>{j.route}</div>
-                <div style={{ fontSize: '12px', color: colors.gravelGrey, marginTop: '2px' }}>{j.info}</div>
+                <p style={{ fontSize: '13px', color: colors.gravelGrey, marginBottom: '14px' }}>
+                  {authToken ? 'Your submitted haulage and machinery bookings will appear here.' : 'Verify your phone number to view your real booking history.'}
+                </p>
+                <button
+                  onClick={() => setScreen(authToken ? 'home' : 'auth_phone')}
+                  style={{ backgroundColor: colors.safetyAmber, color: colors.asphalt, border: 'none', borderRadius: '8px', padding: '10px 16px', fontWeight: 800, fontSize: '13px' }}
+                >
+                  {authToken ? 'Book a Truck' : 'Sign In with Phone'}
+                </button>
               </div>
-            ))}
+            ) : (
+              myJobs.map((j: any) => {
+                const statusLower = String(j.status || 'requested').toLowerCase();
+                const chipStatus =
+                  statusLower === 'completed' || statusLower === 'delivered'
+                    ? 'completed'
+                    : statusLower === 'cancelled'
+                    ? 'cancelled'
+                    : 'heading_to_pickup';
+                return (
+                  <div
+                    key={j.id}
+                    onClick={() => {
+                      setSelectedTrackingJob(j);
+                      setActiveJobId(j.id);
+                      setScreen('tracking');
+                    }}
+                    style={{ backgroundColor: colors.roadWhite, border: `1px solid ${colors.grey200}`, borderRadius: '8px', padding: '14px', marginBottom: '10px', cursor: 'pointer' }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>{j.jobNumber}</span>
+                      <StatusChip status={chipStatus as any} size="sm" />
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-heading)', fontSize: '16px', fontWeight: 700 }}>
+                      {j.pickupAddress} → {j.deliveryAddress}
+                    </div>
+                    <div style={{ fontSize: '12px', color: colors.gravelGrey, marginTop: '2px' }}>
+                      {j.equipmentType?.name || j.vehicleType} · {j.weightTonnes || 0}t
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         )}
 

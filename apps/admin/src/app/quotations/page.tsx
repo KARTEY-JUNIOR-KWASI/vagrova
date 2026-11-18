@@ -57,8 +57,8 @@ const STATUS_STYLES: Record<string, { edge: string; bg: string; text: string }> 
 };
 
 export default function QuotationsPage() {
-  const [requests, setRequests] = useState<any[]>(DEMO_QUOTES);
-  const [selected, setSelected] = useState<any>(DEMO_QUOTES[0]);
+  const [requests, setRequests] = useState<any[]>([]);
+  const [selected, setSelected] = useState<any>(null);
   const [liveMode, setLiveMode] = useState(false);
 
   const [internalNotes, setInternalNotes] = useState('');
@@ -79,10 +79,10 @@ export default function QuotationsPage() {
     adminApi
       .getQuotesQueue()
       .then((rows) => {
-        if (Array.isArray(rows) && rows.length > 0) {
+        if (Array.isArray(rows)) {
           setRequests(rows);
-          setSelected(rows[0]);
-          setInternalNotes(rows[0].internalNotes || '');
+          setSelected(rows[0] ?? null);
+          setInternalNotes(rows[0]?.internalNotes || '');
           setLiveMode(true);
         }
       })
@@ -200,7 +200,7 @@ export default function QuotationsPage() {
               Refresh
             </button>
             <span style={{ fontSize: '12px', fontWeight: 700, color: '#0D6D78', backgroundColor: '#FFFFFF', padding: '6px 12px', borderRadius: '6px', border: '1px solid #CFE0E3' }}>
-              {requests.length} Requests · {liveMode ? 'Live PostgreSQL' : 'Demo Preview (Click Connect Live API)'}
+              {requests.length} Requests · {liveMode ? 'Live PostgreSQL' : 'Connect Live API to load'}
             </span>
           </div>
         </div>
@@ -208,6 +208,12 @@ export default function QuotationsPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '430px 1fr', gap: '20px', alignItems: 'start' }}>
           {/* Left Column: Booking Queue */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {requests.length === 0 && (
+              <div className="card" style={{ padding: '24px 18px', textAlign: 'center', color: '#4B6B70', fontSize: '13px' }}>
+                <div style={{ fontWeight: 700, color: '#0D6D78', marginBottom: '4px' }}>No quotation requests yet</div>
+                New customer haulage &amp; machinery bookings from the live database will appear here.
+              </div>
+            )}
             {requests.map((q) => {
               const ss = STATUS_STYLES[q.bookingStatus || 'SUBMITTED'] || STATUS_STYLES.SUBMITTED;
               const isSelected = selected?.id === q.id;
