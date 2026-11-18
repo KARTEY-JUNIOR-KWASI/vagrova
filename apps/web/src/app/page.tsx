@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import PriceEstimateCard, { formatGhs, getRateGhs } from '@/components/PriceEstimateCard';
 import LiveTrackingView from '@/components/LiveTrackingView';
+import OnboardingHero from '@/components/OnboardingHero';
 import {
   Phone,
   Mic,
@@ -370,12 +371,13 @@ export default function CustomerOrderingApp() {
             SCREEN 0A: REALISTIC TRUCK APPROACH + HEADLIGHT BLOOM LOGO INTRO
            ════════════════════════════════════════════════════════════════════ */}
         {screen === 'splash' && (
-          <TruckApproachIntro
-            onComplete={() => {
+          <OnboardingHero
+            onGetStarted={() => {
               const hasReturningSession =
                 isReturningClient || Boolean(authToken && customerName && customerName !== 'New User');
-              setScreen(hasReturningSession ? 'home' : 'welcome');
+              setScreen(hasReturningSession ? 'home' : 'auth_phone');
             }}
+            onDriverPortal={() => router.push('/driver')}
           />
         )}
 
@@ -580,18 +582,42 @@ export default function CustomerOrderingApp() {
             SCREEN 0B: FIRST-TIME LOGIN — PHONE ENTRY (Passwordless OTP)
            ════════════════════════════════════════════════════════════════════ */}
         {screen === 'auth_phone' && (
-          <div className="anim-screen-slide" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', backgroundColor: colors.roadWhite, minHeight: '100vh' }}>
+          <div className="anim-screen-slide" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', backgroundColor: '#FFFFFF', minHeight: '100vh' }}>
             <div>
-              <header style={{ padding: '16px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${colors.grey200}` }}>
+              <header style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div
+                    style={{
+                      width: '38px',
+                      height: '38px',
+                      borderRadius: '11px',
+                      backgroundColor: colors.asphalt,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Truck size={20} color="#FFFFFF" strokeWidth={2.2} />
+                  </div>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-heading)',
+                      fontSize: '19px',
+                      fontWeight: 900,
+                      letterSpacing: '0.06em',
+                      color: colors.asphalt,
+                    }}
+                  >
+                    VAGROVA
+                  </span>
+                </div>
                 <button
-                  onClick={() => setScreen('welcome')}
-                  aria-label="Back"
-                  style={{ width: '36px', height: '36px', borderRadius: '4px', border: `1px solid ${colors.grey200}`, backgroundColor: colors.waybillPaper, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  onClick={() => setScreen('splash')}
+                  aria-label="Back to onboarding"
+                  style={{ width: '34px', height: '34px', borderRadius: '999px', border: `1px solid ${colors.grey200}`, backgroundColor: colors.waybillPaper, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
-                  <ArrowLeft size={18} />
+                  <ArrowLeft size={16} color={colors.asphalt} />
                 </button>
-                <img src="/vagrova-logo.png" alt="Vagrova" style={{ height: '22px', width: 'auto' }} />
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 700, color: colors.gravelGrey }}>1/3</span>
               </header>
 
               <div style={{ padding: '28px 20px' }}>
