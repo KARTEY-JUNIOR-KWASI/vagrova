@@ -8,6 +8,12 @@ import PriceEstimateCard, { formatGhs, getRateGhs } from '@/components/PriceEsti
 import LiveTrackingView from '@/components/LiveTrackingView';
 import OnboardingHero from '@/components/OnboardingHero';
 import {
+  ToastBanner,
+  NotificationBellButton,
+  NotificationDrawer,
+  type AppNotificationItem,
+} from '@/components/InAppNotifications';
+import {
   Phone,
   Mic,
   MapPin,
@@ -273,6 +279,31 @@ export default function CustomerOrderingApp() {
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [acceptedTermsAndAge, setAcceptedTermsAndAge] = useState(false);
 
+  // In-App On-Screen Notifications & Toast State
+  const [notifications, setNotifications] = useState<AppNotificationItem[]>([]);
+  const [activeToast, setActiveToast] = useState<AppNotificationItem | null>(null);
+  const [notifOpen, setNotifOpen] = useState(false);
+
+  const pushNotification = (
+    title: string,
+    message: string,
+    type: AppNotificationItem['type'] = 'info',
+  ) => {
+    const item: AppNotificationItem = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      title,
+      message,
+      type,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      read: false,
+    };
+    setNotifications((prev) => [item, ...prev].slice(0, 25));
+    setActiveToast(item);
+    setTimeout(() => {
+      setActiveToast((cur) => (cur?.id === item.id ? null : cur));
+    }, 4500);
+  };
+
   useEffect(() => {
     if (!authToken || screen !== 'tracking' || !activeJobId) return;
     const socket = connectTrackingSocket(authToken);
@@ -286,7 +317,9 @@ export default function CustomerOrderingApp() {
 
     socket.on('jobStatusChanged', (payload: { status?: string }) => {
       if (payload?.status) {
-        setLiveTripStatus(payload.status.replace(/_/g, ' '));
+        const cleanStatus = payload.status.replace(/_/g, ' ');
+        setLiveTripStatus(cleanStatus);
+        pushNotification('Trip Status Updated', `Your job is now ${cleanStatus}.`, 'success');
       }
     });
 
@@ -367,6 +400,15 @@ export default function CustomerOrderingApp() {
           boxShadow: '0 0 40px rgba(0,0,0,0.45)',
         }}
       >
+        <ToastBanner toast={activeToast} onDismiss={() => setActiveToast(null)} />
+        <NotificationDrawer
+          open={notifOpen}
+          items={notifications}
+          onClose={() => setNotifOpen(false)}
+          onMarkAllRead={() =>
+            setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+          }
+        />
         {/* ════════════════════════════════════════════════════════════════════
             SCREEN 0A: REALISTIC TRUCK APPROACH + HEADLIGHT BLOOM LOGO INTRO
            ════════════════════════════════════════════════════════════════════ */}
@@ -1054,8 +1096,12 @@ export default function CustomerOrderingApp() {
                 >
                   {language}
                 </button>
+                <NotificationBellButton
+                  unreadCount={notifications.filter((n) => !n.read).length}
+                  onClick={() => setNotifOpen(true)}
+                />
                 <button
-                  onClick={() => alert('Voice guide enabled for this screen.')}
+                  onClick={() => pushNotification('Voice Guide', 'Voice guidance is ready for this screen.', 'info')}
                   aria-label="Read aloud"
                   style={{
                     width: '34px',
@@ -2324,9 +2370,18 @@ export default function CustomerOrderingApp() {
                       deliveryAddress,
                     });
                     setSubmittedJobNumber(res.jobRequest.jobNumber);
+                    pushNotification(
+                      'Booking Submitted',
+                      `Job ${res.jobRequest.jobNumber} sent to Vagrova dispatch.`,
+                      'success',
+                    );
                     setScreen('request_submitted');
                   } catch (err) {
-                    alert(err instanceof Error ? err.message : 'Failed to submit request to server.');
+                    pushNotification(
+                      'Submission Failed',
+                      err instanceof Error ? err.message : 'Failed to submit request to server.',
+                      'error',
+                    );
                   } finally {
                     setRequestSubmitting(false);
                   }
@@ -2580,7 +2635,11 @@ export default function CustomerOrderingApp() {
                     setSubmittedJobNumber(res.jobRequest.jobNumber);
                     setScreen('request_submitted');
                   } catch (err) {
-                    alert(err instanceof Error ? err.message : 'Failed to submit machinery request.');
+                    pushNotification(
+                      'Submission Failed',
+                      err instanceof Error ? err.message : 'Failed to submit machinery request.',
+                      'error',
+                    );
                   } finally {
                     setRequestSubmitting(false);
                   }
@@ -2716,7 +2775,11 @@ export default function CustomerOrderingApp() {
                     setSubmittedJobNumber(res.jobRequest.jobNumber);
                     setScreen('request_submitted');
                   } catch (err) {
-                    alert(err instanceof Error ? err.message : 'Failed to submit Cargo Station request.');
+                    pushNotification(
+                      'Submission Failed',
+                      err instanceof Error ? err.message : 'Failed to submit Cargo Station request.',
+                      'error',
+                    );
                   } finally {
                     setRequestSubmitting(false);
                   }
