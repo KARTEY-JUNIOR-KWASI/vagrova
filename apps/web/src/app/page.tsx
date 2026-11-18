@@ -653,63 +653,59 @@ export default function CustomerOrderingApp() {
             SCREEN 0B: FIRST-TIME LOGIN — PHONE ENTRY (Passwordless OTP)
            ════════════════════════════════════════════════════════════════════ */}
         {screen === 'auth_phone' && (
-          <div className="anim-screen-slide" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', backgroundColor: '#FFFFFF', minHeight: '100vh' }}>
-            <div>
-              <header style={{ padding: '20px 20px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <img
-                  src="/vagrova-logo.png"
-                  alt="Vagrova"
-                  style={{ height: '28px', width: 'auto', display: 'block', mixBlendMode: 'multiply' }}
-                />
-                <button
-                  onClick={() => setScreen('splash')}
-                  aria-label="Back to onboarding"
-                  style={{ width: '34px', height: '34px', borderRadius: '999px', border: `1px solid ${colors.grey200}`, backgroundColor: colors.waybillPaper, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                >
-                  <ArrowLeft size={16} color={colors.asphalt} />
-                </button>
-              </header>
+          <div className="anim-screen-slide" style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: '#FFFFFF', minHeight: '100vh' }}>
+            <header style={{ padding: 'max(18px, env(safe-area-inset-top)) 20px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <img
+                src="/vagrova-logo.png"
+                alt="Vagrova"
+                style={{ height: '28px', width: 'auto', display: 'block', mixBlendMode: 'multiply' }}
+              />
+              <button
+                onClick={() => setScreen('splash')}
+                aria-label="Back to onboarding"
+                style={{ width: '34px', height: '34px', borderRadius: '999px', border: `1px solid ${colors.grey200}`, backgroundColor: colors.waybillPaper, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <ArrowLeft size={16} color={colors.asphalt} />
+              </button>
+            </header>
 
-              <div style={{ padding: '24px 20px' }}>
-                <div style={{ width: '44px', height: '44px', borderRadius: '6px', backgroundColor: colors.waybillPaper, border: `1px solid ${colors.grey200}`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
-                  <Phone size={20} color={colors.asphalt} />
-                </div>
-
-                <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '26px', fontWeight: 700, color: colors.asphalt, marginBottom: '6px' }}>
-                  Sign in or create account
-                </h1>
-                <p style={{ fontSize: '14px', color: colors.gravelGrey, marginBottom: '22px', lineHeight: 1.5 }}>
-                  Returning clients: enter your phone number for OTP to access your profile &amp; orders. First-time users will set up their account after verifying.
-                </p>
-
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: colors.gravelGrey, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>
-                  Ghana Mobile Number
-                </label>
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-                  <div style={{ height: '50px', padding: '0 12px', backgroundColor: colors.waybillPaper, border: `1px solid ${colors.grey300}`, borderRadius: '4px', display: 'flex', alignItems: 'center', fontFamily: 'var(--font-mono)', fontSize: '14px', fontWeight: 700, color: colors.asphalt }}>
-                    +233
-                  </div>
-                  <input
-                    type="tel"
-                    value={authPhone}
-                    onChange={(e) => {
-                      setAuthError(null);
-                      setAuthPhone(e.target.value);
-                    }}
-                    placeholder="024 123 4567"
-                    style={{ flex: 1, height: '50px', border: `1.5px solid ${colors.asphalt}`, borderRadius: '4px', padding: '0 14px', fontFamily: 'var(--font-mono)', fontSize: '16px', fontWeight: 600 }}
-                  />
-                </div>
-
-                {authError && (
-                  <div style={{ backgroundColor: colors.redLight, color: colors.rustRed, fontSize: '13px', fontWeight: 600, padding: '10px 12px', borderRadius: '4px', marginTop: '8px' }}>
-                    {authError}
-                  </div>
-                )}
+            <div style={{ padding: '20px 20px 28px' }}>
+              <div style={{ width: '44px', height: '44px', borderRadius: '6px', backgroundColor: colors.waybillPaper, border: `1px solid ${colors.grey200}`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                <Phone size={20} color={colors.asphalt} />
               </div>
-            </div>
 
-            <div style={{ padding: '20px', backgroundColor: colors.waybillPaper, borderTop: `1px solid ${colors.grey200}`, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '26px', fontWeight: 700, color: colors.asphalt, marginBottom: '6px' }}>
+                Sign in or create account
+              </h1>
+              <p style={{ fontSize: '14px', color: colors.gravelGrey, marginBottom: '20px', lineHeight: 1.5 }}>
+                Returning clients: enter your phone number for OTP to access your profile &amp; orders. First-time users will set up their account after verifying.
+              </p>
+
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: colors.gravelGrey, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>
+                Ghana Mobile Number
+              </label>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+                <div style={{ height: '50px', padding: '0 12px', backgroundColor: colors.waybillPaper, border: `1px solid ${colors.grey300}`, borderRadius: '6px', display: 'flex', alignItems: 'center', fontFamily: 'var(--font-mono)', fontSize: '14px', fontWeight: 700, color: colors.asphalt }}>
+                  +233
+                </div>
+                <input
+                  type="tel"
+                  value={authPhone}
+                  onChange={(e) => {
+                    setAuthError(null);
+                    setAuthPhone(e.target.value);
+                  }}
+                  placeholder="024 123 4567"
+                  style={{ flex: 1, height: '50px', border: `1.5px solid ${colors.asphalt}`, borderRadius: '6px', padding: '0 14px', fontFamily: 'var(--font-mono)', fontSize: '16px', fontWeight: 600 }}
+                />
+              </div>
+
+              {authError && (
+                <div style={{ backgroundColor: colors.redLight, color: colors.rustRed, fontSize: '13px', fontWeight: 600, padding: '10px 12px', borderRadius: '6px', marginBottom: '14px' }}>
+                  {authError}
+                </div>
+              )}
+
               <button
                 disabled={authLoading}
                 onClick={async () => {
@@ -729,7 +725,7 @@ export default function CustomerOrderingApp() {
                     setAuthLoading(false);
                   }
                 }}
-                style={{ width: '100%', height: '54px', backgroundColor: colors.safetyAmber, color: colors.asphalt, border: 'none', borderRadius: '4px', fontFamily: 'var(--font-heading)', fontSize: '16px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                style={{ width: '100%', height: '52px', backgroundColor: colors.safetyAmber, color: colors.asphalt, border: 'none', borderRadius: '8px', fontFamily: 'var(--font-heading)', fontSize: '16px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}
               >
                 <span>{authLoading ? 'Sending Code...' : 'Send Verification Code'}</span>
                 <ArrowRight size={18} />
@@ -742,60 +738,56 @@ export default function CustomerOrderingApp() {
             SCREEN 0C: FIRST-TIME LOGIN — 6-DIGIT OTP VERIFICATION
            ════════════════════════════════════════════════════════════════════ */}
         {screen === 'auth_otp' && (
-          <div className="anim-screen-slide" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', backgroundColor: colors.roadWhite, minHeight: '100vh' }}>
-            <div>
-              <header style={{ padding: '16px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${colors.grey200}` }}>
-                <button
-                  onClick={() => setScreen('auth_phone')}
-                  aria-label="Back"
-                  style={{ width: '36px', height: '36px', borderRadius: '4px', border: `1px solid ${colors.grey200}`, backgroundColor: colors.waybillPaper, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                >
-                  <ArrowLeft size={18} />
-                </button>
-                <img src="/vagrova-logo.png" alt="Vagrova" style={{ height: '22px', width: 'auto' }} />
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 700, color: colors.gravelGrey }}>2/3</span>
-              </header>
+          <div className="anim-screen-slide" style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: colors.roadWhite, minHeight: '100vh' }}>
+            <header style={{ padding: 'max(18px, env(safe-area-inset-top)) 20px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${colors.grey200}` }}>
+              <button
+                onClick={() => setScreen('auth_phone')}
+                aria-label="Back"
+                style={{ width: '36px', height: '36px', borderRadius: '4px', border: `1px solid ${colors.grey200}`, backgroundColor: colors.waybillPaper, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <ArrowLeft size={18} />
+              </button>
+              <img src="/vagrova-logo.png" alt="Vagrova" style={{ height: '22px', width: 'auto', mixBlendMode: 'multiply' }} />
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 700, color: colors.gravelGrey }}>2/2</span>
+            </header>
 
-              <div style={{ padding: '28px 20px' }}>
-                <div style={{ width: '44px', height: '44px', borderRadius: '6px', backgroundColor: colors.waybillPaper, border: `1px solid ${colors.grey200}`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
-                  <KeyRound size={20} color={colors.asphalt} />
-                </div>
-
-                <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '26px', fontWeight: 700, color: colors.asphalt, marginBottom: '6px' }}>
-                  Enter verification code
-                </h1>
-                <p style={{ fontSize: '14px', color: colors.gravelGrey, marginBottom: '22px', lineHeight: 1.5 }}>
-                  Sent via SMS to <strong style={{ fontFamily: 'var(--font-mono)', color: colors.asphalt }}>{authPhone || '024 123 4567'}</strong>.{' '}
-                  <button onClick={() => setScreen('auth_phone')} style={{ background: 'none', border: 'none', color: colors.asphalt, fontWeight: 700, textDecoration: 'underline', fontSize: '14px' }}>
-                    Change
-                  </button>
-                </p>
-
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: colors.gravelGrey, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>
-                  6-Digit Code
-                </label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={6}
-                  value={authOtp}
-                  onChange={(e) => {
-                    setAuthError(null);
-                    setAuthOtp(e.target.value.replace(/\D/g, ''));
-                  }}
-                  placeholder="• • • • • •"
-                  style={{ width: '100%', height: '56px', border: `1.5px solid ${colors.asphalt}`, borderRadius: '4px', textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '24px', fontWeight: 700, letterSpacing: '0.45em', color: colors.asphalt }}
-                />
-
-                {authError && (
-                  <div style={{ backgroundColor: colors.redLight, color: colors.rustRed, fontSize: '13px', fontWeight: 600, padding: '10px 12px', borderRadius: '4px', marginTop: '10px' }}>
-                    {authError}
-                  </div>
-                )}
+            <div style={{ padding: '24px 20px' }}>
+              <div style={{ width: '44px', height: '44px', borderRadius: '6px', backgroundColor: colors.waybillPaper, border: `1px solid ${colors.grey200}`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                <KeyRound size={20} color={colors.asphalt} />
               </div>
-            </div>
 
-            <div style={{ padding: '20px', backgroundColor: colors.waybillPaper, borderTop: `1px solid ${colors.grey200}` }}>
+              <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '26px', fontWeight: 700, color: colors.asphalt, marginBottom: '6px' }}>
+                Enter verification code
+              </h1>
+              <p style={{ fontSize: '14px', color: colors.gravelGrey, marginBottom: '20px', lineHeight: 1.5 }}>
+                Sent via SMS to <strong style={{ fontFamily: 'var(--font-mono)', color: colors.asphalt }}>{authPhone || '024 123 4567'}</strong>.{' '}
+                <button onClick={() => setScreen('auth_phone')} style={{ background: 'none', border: 'none', color: colors.asphalt, fontWeight: 700, textDecoration: 'underline', fontSize: '14px' }}>
+                  Change
+                </button>
+              </p>
+
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: colors.gravelGrey, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>
+                6-Digit Code
+              </label>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                value={authOtp}
+                onChange={(e) => {
+                  setAuthError(null);
+                  setAuthOtp(e.target.value.replace(/\D/g, ''));
+                }}
+                placeholder="• • • • • •"
+                style={{ width: '100%', height: '56px', border: `1.5px solid ${colors.asphalt}`, borderRadius: '6px', textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '24px', fontWeight: 700, letterSpacing: '0.45em', color: colors.asphalt, marginBottom: '14px' }}
+              />
+
+              {authError && (
+                <div style={{ backgroundColor: colors.redLight, color: colors.rustRed, fontSize: '13px', fontWeight: 600, padding: '10px 12px', borderRadius: '6px', marginBottom: '14px' }}>
+                  {authError}
+                </div>
+              )}
+
               <button
                 disabled={authLoading}
                 onClick={async () => {
@@ -812,18 +804,28 @@ export default function CustomerOrderingApp() {
                       localStorage.setItem('vagrova_customer_token', res.accessToken);
                       localStorage.setItem('vagrova_customer_phone', authPhone);
                     }
-                    if (res.isReturningUser && res.user?.name && res.user.name !== 'New User') {
-                      setCustomerName(res.user.name);
+                    const dbHasName = Boolean(res.user?.name && res.user.name !== 'New User');
+                    const localSavedName =
+                      typeof window !== 'undefined' ? localStorage.getItem('vagrova_customer_name') : null;
+                    const hasLocalName = Boolean(localSavedName && localSavedName !== 'New User');
+                    const isReturning = Boolean(res.isReturningUser || dbHasName || (res.totalJobs ?? 0) > 0 || hasLocalName);
+
+                    if (isReturning) {
+                      const resolvedName = dbHasName ? res.user.name : localSavedName || 'Valued Client';
+                      setCustomerName(resolvedName);
                       setIsReturningClient(true);
                       setTotalTrips(res.totalJobs ?? 0);
                       if (typeof window !== 'undefined') {
-                        localStorage.setItem('vagrova_customer_name', res.user.name);
+                        localStorage.setItem('vagrova_customer_name', resolvedName);
                       }
                       if (res.user.companyName) {
                         setCompanyName(res.user.companyName);
                         if (typeof window !== 'undefined') {
                           localStorage.setItem('vagrova_customer_company', res.user.companyName);
                         }
+                      } else if (!dbHasName && hasLocalName) {
+                        // Sync legacy local name to PostgreSQL so future logins recognize them everywhere
+                        vagrovaApi.updateProfile(res.accessToken, { name: resolvedName }).catch(() => {});
                       }
                       setScreen('home');
                     } else {
@@ -836,7 +838,7 @@ export default function CustomerOrderingApp() {
                     setAuthLoading(false);
                   }
                 }}
-                style={{ width: '100%', height: '54px', backgroundColor: colors.safetyAmber, color: colors.asphalt, border: 'none', borderRadius: '4px', fontFamily: 'var(--font-heading)', fontSize: '16px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                style={{ width: '100%', height: '52px', backgroundColor: colors.safetyAmber, color: colors.asphalt, border: 'none', borderRadius: '8px', fontFamily: 'var(--font-heading)', fontSize: '16px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}
               >
                 <span>{authLoading ? 'Verifying...' : 'Verify & Continue'}</span>
                 <ArrowRight size={18} />
@@ -849,9 +851,9 @@ export default function CustomerOrderingApp() {
             SCREEN 0D: FIRST-TIME PROFILE SETUP (Individual or Company)
            ════════════════════════════════════════════════════════════════════ */}
         {screen === 'auth_profile' && (
-          <div className="anim-screen-slide" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', backgroundColor: colors.roadWhite, minHeight: '100vh' }}>
+          <div className="anim-screen-slide" style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: colors.roadWhite, minHeight: '100vh' }}>
             <div>
-              <header style={{ padding: '16px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${colors.grey200}` }}>
+              <header style={{ padding: 'max(18px, env(safe-area-inset-top)) 20px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${colors.grey200}` }}>
                 <button
                   onClick={() => setScreen('auth_otp')}
                   aria-label="Back"
@@ -859,8 +861,8 @@ export default function CustomerOrderingApp() {
                 >
                   <ArrowLeft size={18} />
                 </button>
-                <img src="/vagrova-logo.png" alt="Vagrova" style={{ height: '22px', width: 'auto' }} />
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 700, color: colors.gravelGrey }}>3/3</span>
+                <img src="/vagrova-logo.png" alt="Vagrova" style={{ height: '22px', width: 'auto', mixBlendMode: 'multiply' }} />
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 700, color: colors.gravelGrey }}>FIRST-TIME</span>
               </header>
 
               <div style={{ padding: '24px 20px' }}>
@@ -963,65 +965,63 @@ export default function CustomerOrderingApp() {
                 </label>
 
                 {authError && (
-                  <div style={{ backgroundColor: colors.redLight, color: colors.rustRed, fontSize: '13px', fontWeight: 600, padding: '10px 12px', borderRadius: '4px', marginTop: '12px' }}>
+                  <div style={{ backgroundColor: colors.redLight, color: colors.rustRed, fontSize: '13px', fontWeight: 600, padding: '10px 12px', borderRadius: '6px', marginTop: '12px' }}>
                     {authError}
                   </div>
                 )}
-              </div>
-            </div>
 
-            <div style={{ padding: '20px', backgroundColor: colors.waybillPaper, borderTop: `1px solid ${colors.grey200}` }}>
-              <button
-                disabled={authLoading}
-                onClick={async () => {
-                  if (!customerName.trim()) {
-                    setAuthError('Please enter your name to continue.');
-                    return;
-                  }
-                  if (accountType === 'company' && !companyName.trim()) {
-                    setAuthError('Please enter your company name.');
-                    return;
-                  }
-                  if (!acceptedTermsAndAge) {
-                    setAuthError('Please confirm you are 18+ and accept the Terms & Privacy Policy.');
-                    return;
-                  }
-                  setAuthLoading(true);
-                  setAuthError(null);
-                  const cleanName = customerName.trim();
-                  const cleanCompany = accountType === 'company' ? companyName.trim() : '';
-                  try {
-                    if (authToken) {
-                      await vagrovaApi.updateProfile(authToken, {
-                        name: cleanName,
-                        companyName: cleanCompany || undefined,
-                        email: customerEmail.trim() || undefined,
-                      });
+                <button
+                  disabled={authLoading}
+                  onClick={async () => {
+                    if (!customerName.trim()) {
+                      setAuthError('Please enter your name to continue.');
+                      return;
                     }
-                    if (typeof window !== 'undefined') {
-                      localStorage.setItem('vagrova_customer_name', cleanName);
-                      if (cleanCompany) {
-                        localStorage.setItem('vagrova_customer_company', cleanCompany);
-                      } else {
-                        localStorage.removeItem('vagrova_customer_company');
+                    if (accountType === 'company' && !companyName.trim()) {
+                      setAuthError('Please enter your company name.');
+                      return;
+                    }
+                    if (!acceptedTermsAndAge) {
+                      setAuthError('Please confirm you are 18+ and accept the Terms & Privacy Policy.');
+                      return;
+                    }
+                    setAuthLoading(true);
+                    setAuthError(null);
+                    const cleanName = customerName.trim();
+                    const cleanCompany = accountType === 'company' ? companyName.trim() : '';
+                    try {
+                      if (authToken) {
+                        await vagrovaApi.updateProfile(authToken, {
+                          name: cleanName,
+                          companyName: cleanCompany || undefined,
+                          email: customerEmail.trim() || undefined,
+                        });
                       }
+                      if (typeof window !== 'undefined') {
+                        localStorage.setItem('vagrova_customer_name', cleanName);
+                        if (cleanCompany) {
+                          localStorage.setItem('vagrova_customer_company', cleanCompany);
+                        } else {
+                          localStorage.removeItem('vagrova_customer_company');
+                        }
+                      }
+                      setIsReturningClient(false);
+                      setScreen('home');
+                    } catch {
+                      if (typeof window !== 'undefined') {
+                        localStorage.setItem('vagrova_customer_name', cleanName);
+                      }
+                      setScreen('home');
+                    } finally {
+                      setAuthLoading(false);
                     }
-                    setIsReturningClient(false);
-                    setScreen('home');
-                  } catch {
-                    if (typeof window !== 'undefined') {
-                      localStorage.setItem('vagrova_customer_name', cleanName);
-                    }
-                    setScreen('home');
-                  } finally {
-                    setAuthLoading(false);
-                  }
-                }}
-                style={{ width: '100%', height: '54px', backgroundColor: colors.safetyAmber, color: colors.asphalt, border: 'none', borderRadius: '4px', fontFamily: 'var(--font-heading)', fontSize: '16px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-              >
-                <span>Finish Setup & Start Booking</span>
-                <ArrowRight size={18} />
-              </button>
+                  }}
+                  style={{ width: '100%', height: '52px', marginTop: '18px', backgroundColor: colors.safetyAmber, color: colors.asphalt, border: 'none', borderRadius: '8px', fontFamily: 'var(--font-heading)', fontSize: '16px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}
+                >
+                  <span>{authLoading ? 'Saving Profile...' : 'Finish Setup & Start Booking'}</span>
+                  <ArrowRight size={18} />
+                </button>
+              </div>
             </div>
           </div>
         )}
