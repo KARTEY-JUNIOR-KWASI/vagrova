@@ -9,6 +9,7 @@ import LiveTrackingView from '@/components/LiveTrackingView';
 import OnboardingHero from '@/components/OnboardingHero';
 import QuoteReviewModal from '@/components/QuoteReviewModal';
 import DigitalWaybillModal from '@/components/DigitalWaybillModal';
+import LocationAutocompleteInput from '@/components/LocationAutocompleteInput';
 import {
   ToastBanner,
   NotificationBellButton,
@@ -1582,11 +1583,10 @@ export default function CustomerOrderingApp() {
                     <div style={{ fontSize: '10px', fontWeight: 700, color: colors.gravelGrey, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                       Pickup Location
                     </div>
-                    <input
+                    <LocationAutocompleteInput
                       value={pickupAddress}
-                      onChange={(e) => setPickupAddress(e.target.value)}
+                      onChange={setPickupAddress}
                       placeholder="Enter pickup location"
-                      style={{ width: '100%', height: '38px', border: 'none', borderBottom: `1px solid ${colors.grey300}`, backgroundColor: 'transparent', fontSize: '15px', fontWeight: 600 }}
                     />
                     <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: colors.roadWhite, border: `1px solid ${colors.grey200}`, borderRadius: '4px', padding: '3px 8px', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>
@@ -1633,11 +1633,10 @@ export default function CustomerOrderingApp() {
                     <div style={{ fontSize: '10px', fontWeight: 700, color: colors.gravelGrey, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                       Dropoff Location
                     </div>
-                    <input
+                    <LocationAutocompleteInput
                       value={deliveryAddress}
-                      onChange={(e) => setDeliveryAddress(e.target.value)}
+                      onChange={setDeliveryAddress}
                       placeholder="Enter dropoff location"
-                      style={{ width: '100%', height: '38px', border: 'none', borderBottom: `1px solid ${colors.grey300}`, backgroundColor: 'transparent', fontSize: '15px', fontWeight: 600 }}
                     />
                     <div style={{ display: 'flex', gap: '8px', marginTop: '6px', alignItems: 'center' }}>
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: colors.roadWhite, border: `1px solid ${colors.grey200}`, borderRadius: '4px', padding: '3px 8px', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>

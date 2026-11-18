@@ -19,12 +19,22 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; edge: string }> 
 export default function DashboardPage() {
   const [recentJobs, setRecentJobs] = useState<any[]>([]);
   const [quoteCount, setQuoteCount] = useState(0);
+  const [customerCount, setCustomerCount] = useState(0);
+  const [truckCount, setTruckCount] = useState(0);
 
-  useEffect(() => {
+  const loadDashboard = () => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('vagrova_admin_token') : null;
     if (!token) return;
     adminApi.listAdminJobs().then((rows) => { if (Array.isArray(rows)) setRecentJobs(rows); }).catch(() => {});
     adminApi.getQuotesQueue().then((rows) => { if (Array.isArray(rows)) setQuoteCount(rows.length); }).catch(() => {});
+    adminApi.listAdminCustomers().then((rows) => { if (Array.isArray(rows)) setCustomerCount(rows.length); }).catch(() => {});
+    adminApi.listAdminTrucks().then((rows) => { if (Array.isArray(rows)) setTruckCount(rows.length); }).catch(() => {});
+  };
+
+  useEffect(() => {
+    loadDashboard();
+    const timer = setInterval(loadDashboard, 15000);
+    return () => clearInterval(timer);
   }, []);
 
   const ACTION_ITEMS = [
@@ -50,8 +60,8 @@ export default function DashboardPage() {
     { label: 'Completion Rate', value: recentJobs.length ? `${Math.round((recentJobs.filter((j) => j.status === 'COMPLETED').length / recentJobs.length) * 100)}%` : '0%' },
     { label: 'Revenue (GHS)', value: '0' },
     { label: 'Commission (GHS)', value: '0' },
-    { label: 'Active Trucks', value: '0' },
-    { label: 'Active Customers', value: '0' },
+    { label: 'Active Trucks', value: String(truckCount) },
+    { label: 'Active Customers', value: String(customerCount) },
   ];
 
   const RECENT_JOBS = recentJobs.slice(0, 10).map((j: any) => ({
@@ -77,13 +87,40 @@ export default function DashboardPage() {
               Monday, 16 Nov 2026 · Accra, GH · GHS
             </p>
           </div>
-          <button className="btn-primary">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-            New Job
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={loadDashboard} className="btn-secondary">
+              Refresh Live Data
+            </button>
+            <button className="btn-primary">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+              New Job
+            </button>
+          </div>
         </div>
+
+        {quoteCount > 0 && (
+          <a
+            href="/quotations"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              backgroundColor: '#FFC600',
+              color: '#0D6D78',
+              padding: '12px 18px',
+              borderRadius: '8px',
+              marginBottom: '16px',
+              textDecoration: 'none',
+              fontWeight: 800,
+              fontSize: '14px',
+            }}
+          >
+            <span>New Order Alert: {quoteCount} customer booking request{quoteCount === 1 ? '' : 's'} waiting for review!</span>
+            <span>Open Quotations →</span>
+          </a>
+        )}
 
         {/* ACTION REQUIRED banner */}
         <section style={{ marginBottom: '24px' }}>

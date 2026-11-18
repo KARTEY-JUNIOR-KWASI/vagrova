@@ -276,3 +276,12 @@ textarea:focus-visible {
   outline: 2px solid #FFC600;
   outline-offset: 2px;
 }
+
+/* Prevent iOS Safari auto-zoom on form field focus */
+@media (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}

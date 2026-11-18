@@ -33,8 +33,8 @@ const NAV_ITEMS: NavItem[] = [
         <path d="M3 3C3 2.45 3.45 2 4 2h1.5l1 3-1.5.75a7 7 0 004.25 4.25L10 8.5l3 1V11c0 .55-.45 1-1 1C5.4 12 2 8.6 2 4v-1z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
       </svg>
     ),
-    badge: 3,
-    isAlert: true,
+    badge: undefined,
+    isAlert: false,
   },
   {
     href: '/quotations',
@@ -47,8 +47,8 @@ const NAV_ITEMS: NavItem[] = [
         <line x1="5" y1="11" x2="8" y2="11" stroke="currentColor" strokeWidth="1.5" />
       </svg>
     ),
-    badge: 7,
-    isAlert: true,
+    badge: undefined,
+    isAlert: false,
   },
   {
     href: '/dispatch',
@@ -63,8 +63,6 @@ const NAV_ITEMS: NavItem[] = [
         <line x1="12" y1="8" x2="14" y2="8" stroke="currentColor" strokeWidth="1.5" />
       </svg>
     ),
-    badge: 2,
-    isAlert: true,
   },
   {
     href: '/vehicles',
