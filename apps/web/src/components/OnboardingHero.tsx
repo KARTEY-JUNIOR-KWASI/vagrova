@@ -8,26 +8,26 @@ interface OnboardingHeroProps {
   onDriverPortal?: () => void;
 }
 
-/** Real VAGROVA company wordmark (Safety Gold V-accent + crisp white letters, zero background box). */
-function VagrovaBrandMark({ width = 210 }: { width?: number }) {
+/** Centered VAGROVA wordmark with tight viewBox so it sits 100% dead-center like Yango. */
+function VagrovaBrandMark() {
   return (
     <svg
-      viewBox="0 0 360 64"
+      viewBox="0 0 256 64"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      style={{ width: `${width}px`, maxWidth: '62vw', height: 'auto', display: 'block' }}
+      style={{ width: '230px', maxWidth: '64vw', height: 'auto', display: 'block' }}
       aria-label="VAGROVA"
     >
-      <path d="M12 10L27 52L34 38L23 10H12Z" fill={colors.safetyAmber} />
-      <path d="M40 10L27 52L34 52L51 10H40Z" fill="#FFFFFF" />
+      <path d="M8 10L23 52L30 38L19 10H8Z" fill={colors.safetyAmber} />
+      <path d="M36 10L23 52L30 52L47 10H36Z" fill="#FFFFFF" />
       <text
-        x="56"
+        x="50"
         y="48"
         fill="#FFFFFF"
         fontFamily="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
         fontWeight="900"
         fontSize="44"
-        letterSpacing="2.5"
+        letterSpacing="2"
       >
         AGROVA
       </text>
@@ -37,16 +37,13 @@ function VagrovaBrandMark({ width = 210 }: { width?: number }) {
 
 export default function OnboardingHero({ onGetStarted }: OnboardingHeroProps) {
   const [logoMounted, setLogoMounted] = useState(false);
-  const [gliding, setGliding] = useState(false);
 
   useEffect(() => {
     const mountFrame = requestAnimationFrame(() => setLogoMounted(true));
-    const glideTimer = setTimeout(() => setGliding(true), 1750);
-    const doneTimer = setTimeout(() => onGetStarted(), 2450);
+    const doneTimer = setTimeout(() => onGetStarted(), 1900);
 
     return () => {
       cancelAnimationFrame(mountFrame);
-      clearTimeout(glideTimer);
       clearTimeout(doneTimer);
     };
   }, [onGetStarted]);
@@ -57,32 +54,22 @@ export default function OnboardingHero({ onGetStarted }: OnboardingHeroProps) {
       style={{
         flex: 1,
         minHeight: '100vh',
-        background: `radial-gradient(circle at 50% 42%, #107E8B 0%, ${colors.asphalt} 52%, #06383E 100%)`,
-        position: 'relative',
-        overflow: 'hidden',
+        backgroundColor: colors.asphalt,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         cursor: 'pointer',
       }}
     >
-      {/* Shared-Element Brand Logo Transition: Center Scale-Up -> Top-Left Glide -> Login */}
       <div
         style={{
-          position: 'absolute',
-          zIndex: 10,
-          top: gliding ? '20px' : '50%',
-          left: gliding ? '18px' : '50%',
-          transform: gliding
-            ? 'translate(0%, 0%) scale(0.74)'
-            : logoMounted
-            ? 'translate(-50%, -50%) scale(1.12)'
-            : 'translate(-50%, -50%) scale(0.38)',
-          transformOrigin: gliding ? 'top left' : 'center center',
+          transform: logoMounted ? 'scale(1)' : 'scale(0.42)',
           opacity: logoMounted ? 1 : 0,
           transition:
-            'top 650ms cubic-bezier(0.22, 1, 0.36, 1), left 650ms cubic-bezier(0.22, 1, 0.36, 1), transform 650ms cubic-bezier(0.22, 1, 0.36, 1), opacity 520ms cubic-bezier(0.22, 1, 0.36, 1)',
-          pointerEvents: 'none',
+            'transform 620ms cubic-bezier(0.22, 1, 0.36, 1), opacity 480ms cubic-bezier(0.22, 1, 0.36, 1)',
         }}
       >
-        <VagrovaBrandMark width={210} />
+        <VagrovaBrandMark />
       </div>
     </div>
   );
