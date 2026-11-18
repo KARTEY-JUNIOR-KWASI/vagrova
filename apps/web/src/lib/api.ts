@@ -125,6 +125,14 @@ export const vagrovaApi = {
     });
   },
 
+  requestDataDeletion(phone: string, reason?: string, token?: string) {
+    return apiFetch<{ success: boolean; message: string }>('/auth/deletion-request', {
+      method: 'POST',
+      token,
+      body: JSON.stringify({ phone, reason }),
+    });
+  },
+
   requestCallback(phone: string, customerName?: string) {
     return apiFetch<{ success: boolean; message: string }>('/call-center/request-callback', {
       method: 'POST',

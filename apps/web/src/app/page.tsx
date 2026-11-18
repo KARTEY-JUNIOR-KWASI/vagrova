@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import PriceEstimateCard, { formatGhs, getRateGhs } from '@/components/PriceEstimateCard';
 import LiveTrackingView from '@/components/LiveTrackingView';
@@ -269,6 +270,7 @@ export default function CustomerOrderingApp() {
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [authToken, setAuthToken] = useState<string | null>(null);
+  const [acceptedTermsAndAge, setAcceptedTermsAndAge] = useState(false);
 
   useEffect(() => {
     if (!authToken || screen !== 'tracking' || !activeJobId) return;
@@ -873,9 +875,27 @@ export default function CustomerOrderingApp() {
                   type="email"
                   value={customerEmail}
                   onChange={(e) => setCustomerEmail(e.target.value)}
-                  placeholder="For PDF receipts & invoices"
-                  style={{ width: '100%', height: '46px', border: `1px solid ${colors.grey300}`, borderRadius: '4px', padding: '0 12px' }}
+                  placeholder="For PDF receipts & invoices (1-click unsubscribe included)"
+                  style={{ width: '100%', height: '46px', border: `1px solid ${colors.grey300}`, borderRadius: '4px', padding: '0 12px', marginBottom: '12px' }}
                 />
+
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '12px', color: colors.gravelGrey, lineHeight: 1.45, cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={acceptedTermsAndAge}
+                    onChange={(e) => {
+                      setAuthError(null);
+                      setAcceptedTermsAndAge(e.target.checked);
+                    }}
+                    style={{ marginTop: '3px', flexShrink: 0 }}
+                  />
+                  <span>
+                    I confirm I am <strong>18+ years old</strong> and agree to Vagrova&apos;s{' '}
+                    <Link href="/legal?tab=terms" style={{ color: colors.asphalt, fontWeight: 700, textDecoration: 'underline' }}>Terms</Link>,{' '}
+                    <Link href="/legal?tab=privacy" style={{ color: colors.asphalt, fontWeight: 700, textDecoration: 'underline' }}>Privacy Policy</Link>, and{' '}
+                    <Link href="/legal?tab=refund" style={{ color: colors.asphalt, fontWeight: 700, textDecoration: 'underline' }}>Refund Policy</Link>.
+                  </span>
+                </label>
 
                 {authError && (
                   <div style={{ backgroundColor: colors.redLight, color: colors.rustRed, fontSize: '13px', fontWeight: 600, padding: '10px 12px', borderRadius: '4px', marginTop: '12px' }}>
@@ -895,6 +915,10 @@ export default function CustomerOrderingApp() {
                   }
                   if (accountType === 'company' && !companyName.trim()) {
                     setAuthError('Please enter your company name.');
+                    return;
+                  }
+                  if (!acceptedTermsAndAge) {
+                    setAuthError('Please confirm you are 18+ and accept the Terms & Privacy Policy.');
                     return;
                   }
                   setAuthLoading(true);
@@ -1285,7 +1309,7 @@ export default function CustomerOrderingApp() {
                     READY IN ACCRA & TEMA
                   </span>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 700, color: colors.weighbridgeGreen }}>
-                    47 TRUCKS ONLINE
+                    FLEET READY ON DEMAND
                   </span>
                 </div>
 
@@ -1388,10 +1412,29 @@ export default function CustomerOrderingApp() {
                   <img src="/trucks/container-carrier.jpg" alt="Port Runs" style={{ width: '56px', height: '40px', objectFit: 'contain' }} />
                   <div>
                     <div style={{ fontFamily: 'var(--font-heading)', fontSize: '14px', fontWeight: 700 }}>Port Runs</div>
-                    <div style={{ fontSize: '11px', color: colors.gravelGrey }}>20ft & 40ft containers</div>
+                    <div style={{ fontSize: '11px', color: colors.gravelGrey }}>20ft &amp; 40ft containers</div>
                   </div>
                 </button>
               </div>
+
+              <footer
+                aria-label="Legal and compliance links"
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  padding: '6px 4px 12px',
+                  fontSize: '11px',
+                  color: colors.gravelGrey,
+                }}
+              >
+                <Link href="/legal?tab=privacy" style={{ color: colors.gravelGrey, textDecoration: 'underline' }}>Privacy</Link>
+                <Link href="/legal?tab=terms" style={{ color: colors.gravelGrey, textDecoration: 'underline' }}>Terms</Link>
+                <Link href="/legal?tab=refund" style={{ color: colors.gravelGrey, textDecoration: 'underline' }}>Refunds</Link>
+                <Link href="/legal?tab=cookies" style={{ color: colors.gravelGrey, textDecoration: 'underline' }}>Cookies</Link>
+                <Link href="/legal?tab=deletion" style={{ color: colors.gravelGrey, textDecoration: 'underline' }}>Data Deletion</Link>
+              </footer>
 
               {/* Popular Haulage Sites */}
               <div style={{ fontSize: '11px', fontWeight: 700, color: colors.gravelGrey, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>
@@ -2004,7 +2047,7 @@ export default function CustomerOrderingApp() {
                       {driverDisplayName} <ShieldCheck size={14} color={colors.safetyAmber} />
                     </div>
                     <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.75)' }}>
-                      Verified Operator · 4.92 rating · 142 trips
+                      Verified Vagrova Operator
                     </div>
                   </div>
                 </div>

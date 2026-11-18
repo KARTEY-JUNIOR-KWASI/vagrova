@@ -275,8 +275,7 @@ export default function LiveTrackingView({
                   <ShieldCheck size={15} color={colors.weighbridgeGreen} />
                 </div>
                 <div style={{ fontSize: '12px', color: colors.gravelGrey, display: 'flex', alignItems: 'center', gap: '4px', marginTop: '1px' }}>
-                  <Star size={11} fill={colors.safetyAmber} color={colors.safetyAmber} />
-                  <span style={{ fontWeight: 700, color: colors.asphalt }}>4.9</span>
+                  <span style={{ fontWeight: 700, color: colors.weighbridgeGreen }}>Verified Operator</span>
                   <span>· {truckLabel}</span>
                 </div>
               </div>

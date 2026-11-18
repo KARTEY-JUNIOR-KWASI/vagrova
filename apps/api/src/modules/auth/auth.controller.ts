@@ -47,5 +47,12 @@ export class AuthController {
   ) {
     return this.authService.updateProfile(req.user.userId, body);
   }
+
+  @Post('deletion-request')
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  async requestDataDeletion(@Body() body: { phone: string; reason?: string }) {
+    return this.authService.requestDataDeletion(body.phone, body.reason);
+  }
 }
 

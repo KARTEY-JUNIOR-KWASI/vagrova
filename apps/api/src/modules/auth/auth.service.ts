@@ -299,5 +299,28 @@ export class AuthService {
 
     return this.getProfile(userId);
   }
+
+  /**
+   * Logs an immutable data deletion / account anonymization request.
+   */
+  async requestDataDeletion(rawPhone: string, reason?: string, actorUserId?: string) {
+    const phone = this.normalizePhone(rawPhone);
+    const user = await this.prisma.user.findUnique({ where: { phone } });
+
+    if (user) {
+      await this.auditService.log({
+        actorId: actorUserId || user.id,
+        action: 'USER_DATA_DELETION_REQUESTED',
+        entityName: 'User',
+        entityId: user.id,
+        afterState: { phone, reason: reason || 'User requested deletion' },
+      });
+    }
+
+    return {
+      success: true,
+      message: 'Your data deletion request has been recorded and will be completed within 72 hours.',
+    };
+  }
 }
 
