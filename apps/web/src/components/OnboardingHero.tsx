@@ -68,47 +68,15 @@ export default function OnboardingHero({ onGetStarted, onDriverPortal }: Onboard
         justifyContent: 'flex-end',
       }}
     >
-      {/* Solid Vagrova Deep Harbor Teal (#0D6D78) Splash Backdrop */}
+      {/* Solid Vagrova Deep Harbor Teal (#0D6D78 -> #084D55) Brand Backdrop */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          backgroundColor: colors.asphalt,
+          background: `radial-gradient(circle at 50% 28%, #107E8B 0%, ${colors.asphalt} 48%, #06383E 100%)`,
           zIndex: 0,
         }}
       />
-
-      {/* Real Uploaded Crane Truck Photo (Cross-fades in at 2s) */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 1,
-          opacity: isTopLeft ? 1 : 0,
-          transition: 'opacity 780ms cubic-bezier(0.22, 1, 0.36, 1)',
-        }}
-      >
-        <img
-          src="/trucks/onboarding-real.jpg"
-          alt="Vagrova crane truck lifting modular cabin"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center 35%',
-            display: 'block',
-          }}
-        />
-        {/* High-contrast gradient scrim so white headline & button pop cleanly */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background:
-              'linear-gradient(180deg, rgba(8, 52, 58, 0.62) 0%, rgba(10, 37, 64, 0.18) 38%, rgba(7, 25, 43, 0.92) 86%, rgba(7, 25, 43, 0.97) 100%)',
-          }}
-        />
-      </div>
 
       {/* Shared-Element Hero Logo: Real VAGROVA Brand Mark */}
       <div
