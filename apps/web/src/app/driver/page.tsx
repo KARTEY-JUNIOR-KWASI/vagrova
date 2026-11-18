@@ -177,6 +177,7 @@ export default function DriverAppPage() {
   const [apiBusy, setApiBusy] = useState(false);
   const [driverPhotoUrl, setDriverPhotoUrl] = useState<string | null>(null);
   const [photoUploading, setPhotoUploading] = useState(false);
+  const [driverVerificationStatus, setDriverVerificationStatus] = useState<string>('PENDING');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -296,12 +297,19 @@ export default function DriverAppPage() {
   }, [hasIncomingOffer, availability]);
 
   const handleAcceptOffer = async () => {
-    if (authToken && activeOfferId) {
-      try {
-        await vagrovaApi.respondToOffer(authToken, activeOfferId, 'ACCEPT');
-      } catch {
-        // Fallback to local state if API is offline
-      }
+    if (driverVerificationStatus !== 'APPROVED') {
+      alert('Your driver account is still pending Admin approval. Please complete all verification requirements before accepting orders.');
+      return;
+    }
+    if (!authToken || !activeOfferId) {
+      alert('Please sign in with OTP and wait for a verified dispatch offer.');
+      return;
+    }
+    try {
+      await vagrovaApi.respondToOffer(authToken, activeOfferId, 'ACCEPT');
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Unable to accept order until account is approved.');
+      return;
     }
     setHasIncomingOffer(false);
     setAvailability('BUSY');
@@ -830,13 +838,14 @@ export default function DriverAppPage() {
                         role === 'OWNER_ONLY' ? 'OWNER' : 'DRIVER',
                       );
                       setAuthToken(res.accessToken);
-                      setScreen('signup_role');
-                    } catch (err) {
-                      if (otp.trim() === '123456') {
-                        setScreen('signup_role');
+                      setDriverVerificationStatus(res.user?.verificationStatus || 'PENDING');
+                      if (res.isReturningUser) {
+                        setScreen('dashboard');
                       } else {
-                        setOtpError(err instanceof Error ? err.message : 'Invalid verification code');
+                        setScreen('signup_role');
                       }
+                    } catch (err) {
+                      setOtpError(err instanceof Error ? err.message : 'Invalid verification code');
                     } finally {
                       setApiBusy(false);
                     }
@@ -1930,16 +1939,17 @@ export default function DriverAppPage() {
 
               <button
                 className="vagrova-card-tap"
+                disabled={driverVerificationStatus !== 'APPROVED'}
                 onClick={handleAcceptOffer}
                 style={{
                   height: 54,
                   borderRadius: 16,
-                  backgroundColor: colors.safetyAmber,
+                  backgroundColor: driverVerificationStatus === 'APPROVED' ? colors.safetyAmber : colors.grey200,
                   border: 'none',
-                  color: colors.asphalt,
+                  color: driverVerificationStatus === 'APPROVED' ? colors.asphalt : colors.gravelGrey,
                   fontSize: 15,
                   fontWeight: 800,
-                  cursor: 'pointer',
+                  cursor: driverVerificationStatus === 'APPROVED' ? 'pointer' : 'not-allowed',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -1947,7 +1957,7 @@ export default function DriverAppPage() {
                 }}
               >
                 <Check size={18} />
-                Accept Haulage Job
+                {driverVerificationStatus === 'APPROVED' ? 'Accept Haulage Job' : 'Approval Required'}
               </button>
             </div>
           </div>

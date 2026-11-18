@@ -220,6 +220,7 @@ export class AuthService {
         language: updatedUser.language,
         status: updatedUser.status,
         companyName: updatedUser.customerProfile?.companyName ?? null,
+        verificationStatus: updatedUser.providerProfile?.verificationStatus ?? null,
       },
     };
   }
@@ -257,6 +258,7 @@ export class AuthService {
         language: user.language,
         status: user.status,
         companyName: user.customerProfile?.companyName ?? null,
+        verificationStatus: user.providerProfile?.verificationStatus ?? null,
       },
     };
   }

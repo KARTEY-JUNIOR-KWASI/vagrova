@@ -414,11 +414,7 @@ export default function CustomerOrderingApp() {
            ════════════════════════════════════════════════════════════════════ */}
         {screen === 'splash' && (
           <OnboardingHero
-            onGetStarted={() => {
-              const hasReturningSession =
-                isReturningClient || Boolean(authToken && customerName && customerName !== 'New User');
-              setScreen(hasReturningSession ? 'home' : 'auth_phone');
-            }}
+            onGetStarted={() => setScreen('auth_phone')}
             onDriverPortal={() => router.push('/driver')}
           />
         )}
@@ -626,33 +622,12 @@ export default function CustomerOrderingApp() {
         {screen === 'auth_phone' && (
           <div className="anim-screen-slide" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', backgroundColor: '#FFFFFF', minHeight: '100vh' }}>
             <div>
-              <header style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div
-                    style={{
-                      width: '38px',
-                      height: '38px',
-                      borderRadius: '11px',
-                      backgroundColor: colors.asphalt,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Truck size={20} color="#FFFFFF" strokeWidth={2.2} />
-                  </div>
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-heading)',
-                      fontSize: '19px',
-                      fontWeight: 900,
-                      letterSpacing: '0.06em',
-                      color: colors.asphalt,
-                    }}
-                  >
-                    VAGROVA
-                  </span>
-                </div>
+              <header style={{ padding: '20px 20px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <img
+                  src="/vagrova-logo.png"
+                  alt="Vagrova"
+                  style={{ height: '28px', width: 'auto', display: 'block', mixBlendMode: 'multiply' }}
+                />
                 <button
                   onClick={() => setScreen('splash')}
                   aria-label="Back to onboarding"
@@ -662,16 +637,16 @@ export default function CustomerOrderingApp() {
                 </button>
               </header>
 
-              <div style={{ padding: '28px 20px' }}>
+              <div style={{ padding: '24px 20px' }}>
                 <div style={{ width: '44px', height: '44px', borderRadius: '6px', backgroundColor: colors.waybillPaper, border: `1px solid ${colors.grey200}`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
                   <Phone size={20} color={colors.asphalt} />
                 </div>
 
                 <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '26px', fontWeight: 700, color: colors.asphalt, marginBottom: '6px' }}>
-                  Enter your phone number
+                  Sign in or create account
                 </h1>
                 <p style={{ fontSize: '14px', color: colors.gravelGrey, marginBottom: '22px', lineHeight: 1.5 }}>
-                  We will send a 6-digit one-time code by SMS. No password needed.
+                  Returning clients: enter your phone number for OTP to access your profile &amp; orders. First-time users will set up their account after verifying.
                 </p>
 
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: colors.gravelGrey, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>

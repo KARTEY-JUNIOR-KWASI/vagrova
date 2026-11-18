@@ -250,6 +250,15 @@ export class DispatchService {
       throw new BadRequestException(`Offer is no longer pending (current status: ${offer.status}).`);
     }
 
+    if (
+      dto.action === OfferResponseAction.ACCEPT &&
+      provider.verificationStatus !== 'APPROVED'
+    ) {
+      throw new ForbiddenException(
+        `Your driver/owner account is ${provider.verificationStatus}. Complete all verification requirements and receive Admin approval before accepting orders.`,
+      );
+    }
+
     // ─── 1. DECLINE ACTION ───────────────────────────────────────────────────
     if (dto.action === OfferResponseAction.DECLINE) {
       await this.prisma.offer.update({

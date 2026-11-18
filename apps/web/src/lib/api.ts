@@ -78,6 +78,7 @@ export const vagrovaApi = {
         name: string;
         role: string;
         companyName?: string | null;
+        verificationStatus?: string | null;
       };
     }>(
       '/auth/verify-otp',
@@ -99,6 +100,7 @@ export const vagrovaApi = {
         name: string;
         role: string;
         companyName?: string | null;
+        verificationStatus?: string | null;
       };
     }>('/auth/me', { token });
   },
@@ -117,6 +119,7 @@ export const vagrovaApi = {
         name: string;
         role: string;
         companyName?: string | null;
+        verificationStatus?: string | null;
       };
     }>('/auth/profile', {
       method: 'PATCH',
