@@ -568,5 +568,33 @@ export class QuotesService {
       },
     };
   }
+
+  /**
+   * Lists all booking requests & official quotes belonging to the authenticated customer.
+   */
+  async listMyQuoteRequests(userId: string) {
+    return this.prisma.jobRequest.findMany({
+      where: {
+        customer: { userId },
+      },
+      include: {
+        equipmentType: { select: { name: true, pricingModel: true } },
+        quotes: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        job: {
+          select: {
+            id: true,
+            jobNumber: true,
+            status: true,
+            deliveryCode: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
+  }
 }
 

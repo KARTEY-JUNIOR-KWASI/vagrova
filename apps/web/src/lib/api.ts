@@ -158,6 +158,54 @@ export const vagrovaApi = {
     return apiFetch<any[]>('/dispatch/jobs/my', { token });
   },
 
+  getMyQuoteRequests(token: string) {
+    return apiFetch<any[]>('/quotes/my', { token });
+  },
+
+  respondToQuote(
+    token: string,
+    quoteId: string,
+    action: 'ACCEPT' | 'DECLINE',
+    declineReason?: string,
+  ) {
+    return apiFetch<{
+      success: boolean;
+      job?: {
+        id: string;
+        jobNumber: string;
+        status: string;
+        depositDueMinorUnits: string;
+        currency: string;
+      };
+    }>(`/quotes/${quoteId}/respond`, {
+      method: 'POST',
+      token,
+      body: JSON.stringify({ action, declineReason }),
+    });
+  },
+
+  initializeDeposit(
+    token: string,
+    payload: {
+      jobId: string;
+      method: 'MOMO' | 'BANK_TRANSFER' | 'CARD';
+      momoProvider?: 'MTN' | 'TELECEL' | 'AIRTELTIGO';
+      momoPhoneNumber?: string;
+      idempotencyKey: string;
+    },
+  ) {
+    return apiFetch<{
+      paymentId?: string;
+      providerRef?: string;
+      authorizationUrl?: string;
+      message?: string;
+    }>('/payments/deposits/initialize', {
+      method: 'POST',
+      token,
+      body: JSON.stringify(payload),
+    });
+  },
+
   getMyInvoices(token: string) {
     return apiFetch<any[]>('/invoices/my', { token });
   },

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import PriceEstimateCard, { formatGhs, getRateGhs } from '@/components/PriceEstimateCard';
 import LiveTrackingView from '@/components/LiveTrackingView';
 import OnboardingHero from '@/components/OnboardingHero';
+import QuoteReviewModal from '@/components/QuoteReviewModal';
 import {
   ToastBanner,
   NotificationBellButton,
@@ -129,6 +130,8 @@ export default function CustomerOrderingApp() {
   const [liveTripStatus, setLiveTripStatus] = useState<string | null>(null);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [myJobs, setMyJobs] = useState<any[]>([]);
+  const [myQuoteRequests, setMyQuoteRequests] = useState<any[]>([]);
+  const [activeQuoteReview, setActiveQuoteReview] = useState<any | null>(null);
   const [selectedTrackingJob, setSelectedTrackingJob] = useState<any | null>(null);
 
   // Managed Equipment Catalog & Category A/B Request State
@@ -228,6 +231,13 @@ export default function CustomerOrderingApp() {
               setIsReturningClient(false);
             }
           });
+
+        vagrovaApi
+          .getMyQuoteRequests(savedToken)
+          .then((reqs) => {
+            if (Array.isArray(reqs)) setMyQuoteRequests(reqs);
+          })
+          .catch(() => {});
 
         vagrovaApi
           .getMyJobs(savedToken)
@@ -408,6 +418,20 @@ export default function CustomerOrderingApp() {
           onMarkAllRead={() =>
             setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
           }
+        />
+        <QuoteReviewModal
+          requestItem={activeQuoteReview}
+          authToken={authToken}
+          defaultPhone={authPhone}
+          onClose={() => setActiveQuoteReview(null)}
+          onSuccess={(title, msg) => {
+            pushNotification(title, msg, 'success');
+            if (authToken) {
+              vagrovaApi.getMyQuoteRequests(authToken).then((reqs) => Array.isArray(reqs) && setMyQuoteRequests(reqs)).catch(() => {});
+              vagrovaApi.getMyJobs(authToken).then((jobs) => Array.isArray(jobs) && setMyJobs(jobs)).catch(() => {});
+            }
+          }}
+          onError={(title, msg) => pushNotification(title, msg, 'error')}
         />
         {/* ════════════════════════════════════════════════════════════════════
             SCREEN 0A: REALISTIC TRUCK APPROACH + HEADLIGHT BLOOM LOGO INTRO
@@ -2878,7 +2902,7 @@ export default function CustomerOrderingApp() {
         {screen === 'jobs' && (
           <div style={{ flex: 1, padding: '16px', paddingBottom: '88px' }}>
             <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '22px', fontWeight: 700, marginBottom: '14px' }}>My Haulage Jobs</h1>
-            {myJobs.length === 0 ? (
+            {myJobs.length === 0 && myQuoteRequests.length === 0 ? (
               <div style={{ backgroundColor: colors.roadWhite, border: `1px solid ${colors.grey200}`, borderRadius: '10px', padding: '24px 16px', textAlign: 'center' }}>
                 <div style={{ fontFamily: 'var(--font-heading)', fontSize: '16px', fontWeight: 700, color: colors.asphalt, marginBottom: '6px' }}>
                   No bookings yet
@@ -2894,37 +2918,111 @@ export default function CustomerOrderingApp() {
                 </button>
               </div>
             ) : (
-              myJobs.map((j: any) => {
-                const statusLower = String(j.status || 'requested').toLowerCase();
-                const chipStatus =
-                  statusLower === 'completed' || statusLower === 'delivered'
-                    ? 'completed'
-                    : statusLower === 'cancelled'
-                    ? 'cancelled'
-                    : 'heading_to_pickup';
-                return (
-                  <div
-                    key={j.id}
-                    onClick={() => {
-                      setSelectedTrackingJob(j);
-                      setActiveJobId(j.id);
-                      setScreen('tracking');
-                    }}
-                    style={{ backgroundColor: colors.roadWhite, border: `1px solid ${colors.grey200}`, borderRadius: '8px', padding: '14px', marginBottom: '10px', cursor: 'pointer' }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>{j.jobNumber}</span>
-                      <StatusChip status={chipStatus as any} size="sm" />
+              <>
+                {myQuoteRequests.map((req: any) => {
+                  const hasQuote = Array.isArray(req.quotes) && req.quotes.length > 0;
+                  const quoteStatus = req.quotes?.[0]?.status;
+                  return (
+                    <div
+                      key={req.id}
+                      style={{ backgroundColor: colors.roadWhite, border: `1px solid ${colors.grey200}`, borderRadius: '10px', padding: '14px', marginBottom: '10px' }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700, color: colors.asphalt }}>{req.jobNumber}</span>
+                        <span
+                          style={{
+                            fontSize: '10px',
+                            fontWeight: 800,
+                            padding: '3px 8px',
+                            borderRadius: '999px',
+                            backgroundColor: hasQuote ? colors.safetyAmber : colors.waybillPaper,
+                            color: colors.asphalt,
+                          }}
+                        >
+                          {req.bookingStatus || (hasQuote ? quoteStatus : 'UNDER REVIEW')}
+                        </span>
+                      </div>
+                      <div style={{ fontFamily: 'var(--font-heading)', fontSize: '15px', fontWeight: 700, color: colors.asphalt }}>
+                        {req.pickupAddress} → {req.deliveryAddress}
+                      </div>
+                      <div style={{ fontSize: '12px', color: colors.gravelGrey, marginTop: '2px', marginBottom: '10px' }}>
+                        {req.equipmentType?.name || req.vehicleType} · {req.weightTonnes || 0}t
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          onClick={() => setActiveQuoteReview(req)}
+                          style={{
+                            flex: 1,
+                            height: '38px',
+                            borderRadius: '8px',
+                            backgroundColor: hasQuote ? colors.asphalt : colors.waybillPaper,
+                            color: hasQuote ? colors.safetyAmber : colors.asphalt,
+                            border: hasQuote ? 'none' : `1px solid ${colors.grey200}`,
+                            fontSize: '12px',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {hasQuote ? 'Review Quote & Pay Deposit' : 'View Request Status'}
+                        </button>
+                        {req.job && (
+                          <button
+                            onClick={() => {
+                              setSelectedTrackingJob(req.job);
+                              setActiveJobId(req.job.id);
+                              setScreen('tracking');
+                            }}
+                            style={{
+                              height: '38px',
+                              padding: '0 12px',
+                              borderRadius: '8px',
+                              backgroundColor: colors.safetyAmber,
+                              color: colors.asphalt,
+                              border: 'none',
+                              fontSize: '12px',
+                              fontWeight: 800,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            Track →
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    <div style={{ fontFamily: 'var(--font-heading)', fontSize: '16px', fontWeight: 700 }}>
-                      {j.pickupAddress} → {j.deliveryAddress}
+                  );
+                })}
+                {myJobs.map((j: any) => {
+                  const statusLower = String(j.status || 'requested').toLowerCase();
+                  const chipStatus =
+                    statusLower === 'completed' || statusLower === 'delivered'
+                      ? 'completed'
+                      : statusLower === 'cancelled'
+                      ? 'cancelled'
+                      : 'heading_to_pickup';
+                  return (
+                    <div
+                      key={j.id}
+                      onClick={() => {
+                        setSelectedTrackingJob(j);
+                        setActiveJobId(j.id);
+                        setScreen('tracking');
+                      }}
+                      style={{ backgroundColor: colors.roadWhite, border: `1px solid ${colors.grey200}`, borderRadius: '8px', padding: '14px', marginBottom: '10px', cursor: 'pointer' }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 700 }}>{j.jobNumber}</span>
+                        <StatusChip status={chipStatus as any} size="sm" />
+                      </div>
+                      <div style={{ fontFamily: 'var(--font-heading)', fontSize: '16px', fontWeight: 700 }}>
+                        {j.pickupAddress} → {j.deliveryAddress}
+                      </div>
+                      <div style={{ fontSize: '12px', color: colors.gravelGrey, marginTop: '2px' }}>
+                        {j.equipmentType?.name || j.vehicleType} · {j.weightTonnes || 0}t
+                      </div>
                     </div>
-                    <div style={{ fontSize: '12px', color: colors.gravelGrey, marginTop: '2px' }}>
-                      {j.equipmentType?.name || j.vehicleType} · {j.weightTonnes || 0}t
-                    </div>
-                  </div>
-                );
-              })
+                  );
+                })}
+              </>
             )}
           </div>
         )}

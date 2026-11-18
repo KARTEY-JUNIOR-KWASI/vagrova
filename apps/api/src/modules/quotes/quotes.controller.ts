@@ -32,6 +32,11 @@ export class QuotesController {
     return this.quotesService.createRequest(user.id, dto);
   }
 
+  @Get('my')
+  async getMyQuoteRequests(@CurrentUser() user: User) {
+    return this.quotesService.listMyQuoteRequests(user.id);
+  }
+
   @Get('admin/queue')
   @Roles(
     UserRole.ADMIN,
