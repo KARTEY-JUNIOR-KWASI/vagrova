@@ -1,6 +1,10 @@
 import { io, type Socket } from 'socket.io-client';
 
-const WS_BASE = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:4000';
+const WS_BASE =
+  process.env.NEXT_PUBLIC_WS_URL ||
+  (typeof window !== 'undefined' && window.location.hostname.endsWith('onrender.com')
+    ? 'https://vagrova.onrender.com'
+    : 'http://localhost:4000');
 
 export function connectTrackingSocket(token: string): Socket {
   return io(`${WS_BASE}/tracking`, {
