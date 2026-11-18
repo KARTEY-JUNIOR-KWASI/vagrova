@@ -5,7 +5,7 @@ import { Truck, AlertTriangle, CheckCircle2, Clock, Plus } from 'lucide-react';
 import { AdminShell } from '@/components/AdminShell';
 import { adminApi } from '@/lib/api';
 
-const VEHICLES: Array<{
+interface VehicleRow {
   plate: string;
   type: string;
   makeModel: string;
@@ -15,11 +15,12 @@ const VEHICLES: Array<{
   roadworthyExp: string;
   insuranceExp: string;
   jobs: number;
-}> = [];
+}
 
 export default function VehiclesPage() {
   const [filter, setFilter] = useState('ALL');
   const [categories, setCategories] = useState<any[]>([]);
+  const [vehicles, setVehicles] = useState<VehicleRow[]>([]);
   const [newName, setNewName] = useState('');
   const [newPricingModel, setNewPricingModel] = useState('DAILY');
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
@@ -34,6 +35,25 @@ export default function VehiclesPage() {
           setCategories(data);
           setSelectedCategoryId(data[0].id);
         }
+      })
+      .catch(() => {});
+    adminApi
+      .listAdminTrucks()
+      .then((rows) => {
+        if (!Array.isArray(rows)) return;
+        setVehicles(
+          rows.map((t: any) => ({
+            plate: t.plate,
+            type: t.equipmentType?.name || t.type,
+            makeModel: `${t.make} ${t.model}`,
+            capacity: `${t.capacityTonnes}t`,
+            owner: t.owner?.user?.name || 'Owner',
+            status: t.status || 'AVAILABLE',
+            roadworthyExp: t.roadworthyExpiry ? new Date(t.roadworthyExpiry).toLocaleDateString() : '—',
+            insuranceExp: t.insuranceExpiry ? new Date(t.insuranceExpiry).toLocaleDateString() : '—',
+            jobs: t._count?.jobs ?? 0,
+          })),
+        );
       })
       .catch(() => {});
   }, []);
@@ -75,7 +95,7 @@ export default function VehiclesPage() {
     }
   };
 
-  const filtered = VEHICLES.filter((v) => filter === 'ALL' || v.status === filter);
+  const filtered = vehicles.filter((v) => filter === 'ALL' || v.status === filter);
 
   return (
     <AdminShell>

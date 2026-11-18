@@ -11,6 +11,9 @@ import {
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
+import { RolesGuard } from '@/common/guards/roles.guard';
+import { Roles } from '@/common/decorators/roles.decorator';
+import { UserRole } from '@prisma/client';
 import { AuthService } from './auth.service';
 import { RequestOtpDto } from './dto/request-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
@@ -53,6 +56,13 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async requestDataDeletion(@Body() body: { phone: string; reason?: string }) {
     return this.authService.requestDataDeletion(body.phone, body.reason);
+  }
+
+  @Get('admin/customers')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.FINANCE)
+  async listAdminCustomers() {
+    return this.authService.listAdminCustomers();
   }
 }
 

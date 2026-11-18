@@ -312,5 +312,26 @@ export class ProvidersService {
 
     return updated;
   }
+
+  /**
+   * Lists all registered fleet trucks for the Admin Console.
+   */
+  async listAdminTrucks() {
+    return this.prisma.truck.findMany({
+      include: {
+        owner: {
+          include: {
+            user: { select: { name: true, phone: true } },
+          },
+        },
+        equipmentType: { select: { name: true } },
+        _count: {
+          select: { jobs: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+    });
+  }
 }
 

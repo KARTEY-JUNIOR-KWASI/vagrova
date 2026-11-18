@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   Post,
   Body,
   Headers,
@@ -23,6 +24,13 @@ import { User, UserRole, PaymentMethod } from '@prisma/client';
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
+
+  @Get('admin/all')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.FINANCE)
+  async listAdminPayments() {
+    return this.paymentsService.listAdminPayments();
+  }
 
   @Post('deposits/initialize')
   @UseGuards(JwtAuthGuard)

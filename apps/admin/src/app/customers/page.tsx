@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Building2, User as UserIcon, Flag } from 'lucide-react';
 import { AdminShell } from '@/components/AdminShell';
+import { adminApi } from '@/lib/api';
 
-const CUSTOMERS: Array<{
+interface CustomerRow {
   id: string;
   name: string;
   type: string;
@@ -13,12 +14,36 @@ const CUSTOMERS: Array<{
   balanceGHS: string;
   notes: string;
   flagged: boolean;
-}> = [];
+}
 
 export default function CustomersPage() {
   const [search, setSearch] = useState('');
+  const [customers, setCustomers] = useState<CustomerRow[]>([]);
 
-  const filtered = CUSTOMERS.filter(
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('vagrova_admin_token') : null;
+    if (!token) return;
+    adminApi
+      .listAdminCustomers()
+      .then((rows) => {
+        if (!Array.isArray(rows)) return;
+        setCustomers(
+          rows.map((c: any) => ({
+            id: c.id.slice(0, 8).toUpperCase(),
+            name: c.companyName || c.user?.name || 'Customer',
+            type: c.companyName ? 'COMPANY' : c.type || 'INDIVIDUAL',
+            phone: c.user?.phone || '—',
+            jobs: c._count?.jobRequests ?? 0,
+            balanceGHS: '0.00',
+            notes: c.addressNotes || '—',
+            flagged: Array.isArray(c.flags) && c.flags.length > 0,
+          })),
+        );
+      })
+      .catch(() => {});
+  }, []);
+
+  const filtered = customers.filter(
     (c) =>
       c.name.toLowerCase().includes(search.toLowerCase()) ||
       c.phone.includes(search),

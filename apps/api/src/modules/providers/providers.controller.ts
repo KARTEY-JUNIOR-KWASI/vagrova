@@ -71,6 +71,12 @@ export class ProvidersController {
     return this.providersService.listVerificationQueue();
   }
 
+  @Get('admin/trucks')
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.DISPATCHER)
+  async listAdminTrucks() {
+    return this.providersService.listAdminTrucks();
+  }
+
   @Post('admin/documents/:id/review')
   @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @HttpCode(HttpStatus.OK)

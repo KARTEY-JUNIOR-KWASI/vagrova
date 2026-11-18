@@ -195,4 +195,16 @@ export const adminApi = {
       body: JSON.stringify(payload),
     });
   },
+
+  listAdminCustomers() {
+    return adminFetch<any[]>('/auth/admin/customers');
+  },
+
+  listAdminPayments() {
+    return adminFetch<any[]>('/payments/admin/all');
+  },
+
+  listAdminTrucks() {
+    return adminFetch<any[]>('/providers/admin/trucks');
+  },
 };

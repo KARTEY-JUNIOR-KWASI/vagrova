@@ -322,5 +322,29 @@ export class AuthService {
       message: 'Your data deletion request has been recorded and will be completed within 72 hours.',
     };
   }
+
+  /**
+   * Lists all registered customers for the Admin Console.
+   */
+  async listAdminCustomers() {
+    return this.prisma.customer.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            phone: true,
+            status: true,
+            createdAt: true,
+          },
+        },
+        _count: {
+          select: { jobRequests: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+    });
+  }
 }
 

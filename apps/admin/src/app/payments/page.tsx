@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
 import { AdminShell } from '@/components/AdminShell';
+import { adminApi } from '@/lib/api';
 
-const INITIAL_PAYMENTS: Array<{
+interface PaymentRow {
   ref: string;
   job: string;
   payer: string;
@@ -13,10 +14,36 @@ const INITIAL_PAYMENTS: Array<{
   amountGHS: string;
   status: string;
   date: string;
-}> = [];
+}
 
 export default function PaymentsPage() {
-  const [payments, setPayments] = useState(INITIAL_PAYMENTS);
+  const [payments, setPayments] = useState<PaymentRow[]>([]);
+
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('vagrova_admin_token') : null;
+    if (!token) return;
+    adminApi
+      .listAdminPayments()
+      .then((rows) => {
+        if (!Array.isArray(rows)) return;
+        setPayments(
+          rows.map((p: any) => ({
+            ref: p.providerRef || p.id.slice(0, 10).toUpperCase(),
+            job: p.job?.jobRequest?.jobNumber || '—',
+            payer: p.job?.jobRequest?.customer?.user?.name || 'Customer',
+            kind: 'Booking Payment',
+            method: String(p.method || 'MOMO').replace(/_/g, ' '),
+            amountGHS: (Number(p.amountMinorUnits || 0) / 100).toLocaleString('en-GH', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }),
+            status: p.status || 'PENDING',
+            date: new Date(p.createdAt).toLocaleString(),
+          })),
+        );
+      })
+      .catch(() => {});
+  }, []);
 
   const handleConfirmManual = (ref: string) => {
     setPayments(

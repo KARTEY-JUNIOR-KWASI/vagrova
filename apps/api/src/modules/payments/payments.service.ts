@@ -304,5 +304,31 @@ export class PaymentsService {
 
     return { success: true };
   }
+
+  /**
+   * Lists all payment transactions for the Admin Console.
+   */
+  async listAdminPayments() {
+    return this.prisma.payment.findMany({
+      include: {
+        job: {
+          include: {
+            jobRequest: {
+              select: {
+                jobNumber: true,
+                customer: {
+                  include: {
+                    user: { select: { name: true, phone: true } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+    });
+  }
 }
 
