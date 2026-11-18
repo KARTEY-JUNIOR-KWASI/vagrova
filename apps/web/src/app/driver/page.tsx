@@ -158,7 +158,7 @@ const SIGNUP_STEPS: Screen[] = [
 ];
 
 export default function DriverAppPage() {
-  const [screen, setScreen] = useState<Screen>('dashboard');
+  const [screen, setScreen] = useState<Screen>('welcome');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -260,32 +260,32 @@ export default function DriverAppPage() {
   };
 
   // Sign-up state
-  const [phone, setPhone] = useState('024 812 3390');
+  const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [otpError, setOtpError] = useState('');
   const [role, setRole] = useState<DriverRole>('OWNER_AND_DRIVER');
-  const [fullName, setFullName] = useState('Yaw Boateng');
-  const [ghanaCardNo, setGhanaCardNo] = useState('GHA-719284012-4');
+  const [fullName, setFullName] = useState('');
+  const [ghanaCardNo, setGhanaCardNo] = useState('');
   const [licenseClass, setLicenseClass] = useState('Class C (Heavy Goods)');
-  const [nextOfKin, setNextOfKin] = useState('Abena Boateng · 020 554 8810');
+  const [nextOfKin, setNextOfKin] = useState('');
   const [vehicleType, setVehicleType] = useState<VehicleType>('flatbed');
-  const [plateNumber, setPlateNumber] = useState('GW-2290-22');
-  const [makeModel, setMakeModel] = useState('MAN TGS 33.400');
-  const [payloadTons, setPayloadTons] = useState('40');
+  const [plateNumber, setPlateNumber] = useState('');
+  const [makeModel, setMakeModel] = useState('');
+  const [payloadTons, setPayloadTons] = useState('');
   const [docs, setDocs] = useState<UploadedDoc[]>(INITIAL_DOCS);
 
   // Dashboard & Dispatch state
   const [availability, setAvailability] = useState<Availability>('AVAILABLE');
-  const [hasIncomingOffer, setHasIncomingOffer] = useState(true);
-  const [offerCountdown, setOfferCountdown] = useState(42);
+  const [hasIncomingOffer, setHasIncomingOffer] = useState(false);
+  const [offerCountdown, setOfferCountdown] = useState(45);
   const [activePhase, setActivePhase] = useState<TripPhase>('heading_to_pickup');
-  const [activeJobRef, setActiveJobRef] = useState('VGJ-004819');
+  const [activeJobRef, setActiveJobRef] = useState('');
   const [activeRoute, setActiveRoute] = useState({
-    pickup: 'Kasoa Tollbooth',
-    dropoff: 'Accra Industrial Area',
-    cargo: 'Cement Bags (30t)',
-    distanceKm: 34.2,
-    payoutGhs: 6250,
+    pickup: '',
+    dropoff: '',
+    cargo: '',
+    distanceKm: 0,
+    payoutGhs: 0,
   });
 
   useEffect(() => {
@@ -469,23 +469,8 @@ export default function DriverAppPage() {
               <img
                 src="/vagrova-logo.png"
                 alt="Vagrova"
-                style={{ height: 26, width: 'auto' }}
+                style={{ height: 26, width: 'auto', mixBlendMode: 'multiply' }}
               />
-              <button
-                onClick={() => setScreen('dashboard')}
-                style={{
-                  padding: '7px 14px',
-                  borderRadius: 999,
-                  backgroundColor: colors.waybillPaper,
-                  border: `1px solid ${colors.grey200}`,
-                  color: colors.asphalt,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}
-              >
-                Skip to Dashboard
-              </button>
             </div>
 
             <div
@@ -1514,8 +1499,8 @@ export default function DriverAppPage() {
                 {availability === 'AVAILABLE'
                   ? 'Live GPS active — eligible for shortlist offers'
                   : availability === 'BUSY'
-                  ? 'On active haul — new offers paused'
-                  : 'Offline — hidden from dispatch'}
+                    ? 'On active haul — new offers paused'
+                    : 'Offline — hidden from dispatch'}
               </p>
             </div>
 
@@ -2145,229 +2130,209 @@ export default function DriverAppPage() {
                   marginTop: 6,
                 }}
               >
-                GHS 42,890.00
+                GHS 0.00
               </div>
               <div style={{ fontSize: 12, color: colors.safetyAmber, marginTop: 6, fontWeight: 600 }}>
-                MTN MoMo Instant Payout · 024 812 3390
+                MTN MoMo Instant Payout · {phone || 'Verified Number'}
               </div>
             </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {[
-                { ref: 'VGJ-004812', route: 'Tema Port → Kumasi', date: 'Today', amount: 'GHS 8,400.00', status: 'Settled' },
-                { ref: 'VGJ-004799', route: 'Takoradi → Tarkwa', date: 'Yesterday', amount: 'GHS 6,250.00', status: 'Settled' },
-                { ref: 'VGJ-004771', route: 'Accra → Ho', date: '14 Nov', amount: 'GHS 3,800.00', status: 'Settled' },
-              ].map((item) => (
-                <div
-                  key={item.ref}
-                  style={{
-                    padding: 16,
-                    borderRadius: 16,
-                    backgroundColor: colors.waybillPaper,
-                    border: `1px solid ${colors.grey200}`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: colors.asphalt }}>
-                      {item.route}
-                    </div>
-                    <div style={{ fontSize: 12, color: colors.gravelGrey, marginTop: 2 }}>
-                      {item.ref} · {item.date}
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: colors.asphalt }}>
-                      {item.amount}
-                    </div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: colors.weighbridgeGreen }}>
-                      {item.status}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ══════════════════════════════════════════════════════════════════ */}
-        {/* DOCS & VEHICLE TAB                                               */}
-        {/* ══════════════════════════════════════════════════════════════════ */}
-        {screen === 'docs' && (
-          <div className="anim-fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <h1
-              style={{
-                fontFamily: 'var(--font-archivo), Archivo, sans-serif',
-                fontSize: 24,
-                fontWeight: 800,
-                margin: 0,
-              }}
-            >
-              Documents & Fleet
-            </h1>
 
             <div
               style={{
-                padding: 15,
+                padding: 20,
                 borderRadius: 16,
-                backgroundColor: colors.roadWhite,
-                border: `1.5px solid ${colors.asphalt}`,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 14,
+                backgroundColor: colors.waybillPaper,
+                border: `1px solid ${colors.grey200}`,
+                textAlign: 'center',
+                fontSize: 13,
+                color: colors.gravelGrey,
               }}
             >
-              <div
-                style={{
-                  width: 56,
-                  height: 56,
-                  borderRadius: 999,
-                  backgroundColor: colors.waybillPaper,
-                  border: `2px solid ${colors.asphalt}`,
-                  overflow: 'hidden',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                }}
-              >
-                {driverPhotoUrl ? (
-                  <img src={driverPhotoUrl} alt={fullName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  <User size={24} color={colors.asphalt} />
-                )}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: colors.asphalt }}>
-                  Driver Profile Photo
-                </div>
-                <div style={{ fontSize: 12, color: colors.gravelGrey, marginTop: 2 }}>
-                  Visible to customers when ordering
-                </div>
-              </div>
-              <label
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: 10,
-                  backgroundColor: colors.safetyAmber,
-                  color: colors.asphalt,
-                  fontSize: 12,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 5,
-                }}
-              >
-                <Camera size={14} />
-                {photoUploading ? 'Saving...' : driverPhotoUrl ? 'Change' : 'Upload'}
-                <input type="file" accept="image/*" onChange={handleDriverPhotoUpload} style={{ display: 'none' }} />
-              </label>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {docs.map((doc) => (
-                <div
-                  key={doc.id}
-                  style={{
-                    padding: 15,
-                    borderRadius: 16,
-                    backgroundColor: colors.waybillPaper,
-                    border: `1px solid ${colors.grey200}`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: 12,
-                  }}
-                >
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: colors.asphalt }}>
-                      {doc.label}
-                    </div>
-                    <div style={{ fontSize: 12, color: colors.gravelGrey, marginTop: 2 }}>
-                      {doc.fileName ?? 'Pending'} · Exp {doc.expiry}
-                    </div>
-                  </div>
-                  <span
-                    style={{
-                      padding: '4px 10px',
-                      borderRadius: 999,
-                      backgroundColor:
-                        doc.status === 'VERIFIED' ? colors.greenLight : colors.roadWhite,
-                      color:
-                        doc.status === 'VERIFIED' ? colors.weighbridgeGreen : colors.asphalt,
-                      fontSize: 11,
-                      fontWeight: 700,
-                    }}
-                  >
-                    {doc.status}
-                  </span>
-                </div>
-              ))}
+              No settled payouts yet. Completed haulage trips will appear here.
             </div>
           </div>
         )}
-      </main>
 
-      {/* Clean Floating Pill Bottom Navigation matching Customer UI */}
-      {!isAuthOrWelcome && (
-        <nav
+{/* ══════════════════════════════════════════════════════════════════ */ }
+{/* DOCS & VEHICLE TAB                                               */ }
+{/* ══════════════════════════════════════════════════════════════════ */ }
+{
+  screen === 'docs' && (
+    <div className="anim-fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <h1
+        style={{
+          fontFamily: 'var(--font-archivo), Archivo, sans-serif',
+          fontSize: 24,
+          fontWeight: 800,
+          margin: 0,
+        }}
+      >
+        Documents & Fleet
+      </h1>
+
+      <div
+        style={{
+          padding: 15,
+          borderRadius: 16,
+          backgroundColor: colors.roadWhite,
+          border: `1.5px solid ${colors.asphalt}`,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 14,
+        }}
+      >
+        <div
           style={{
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            margin: '0 auto',
-            width: '100%',
-            maxWidth: 460,
-            backgroundColor: colors.roadWhite,
-            borderTop: `1px solid ${colors.grey200}`,
-            padding: '6px 8px calc(6px + env(safe-area-inset-bottom, 0px))',
-            boxShadow: '0 -6px 20px rgba(13, 109, 120, 0.08)',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: 4,
-            zIndex: 50,
+            width: 56,
+            height: 56,
+            borderRadius: 999,
+            backgroundColor: colors.waybillPaper,
+            border: `2px solid ${colors.asphalt}`,
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
           }}
         >
-          {[
-            { id: 'dashboard' as Screen, label: 'Dispatch', icon: Truck },
-            { id: 'active_trip' as Screen, label: 'Trip', icon: Navigation },
-            { id: 'earnings' as Screen, label: 'Earnings', icon: Wallet },
-            { id: 'docs' as Screen, label: 'Docs', icon: FileText },
-          ].map((tab) => {
-            const active = screen === tab.id || (tab.id === 'dashboard' && screen === 'offer');
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setScreen(tab.id)}
-                style={{
-                  height: 50,
-                  borderRadius: 16,
-                  border: 'none',
-                  backgroundColor: active ? colors.asphalt : 'transparent',
-                  color: active ? colors.safetyAmber : colors.gravelGrey,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 3,
-                  fontSize: 11,
-                  fontWeight: active ? 700 : 600,
-                  cursor: 'pointer',
-                  transition: 'all 160ms ease',
-                }}
-              >
-                <Icon size={17} />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-      )}
+          {driverPhotoUrl ? (
+            <img src={driverPhotoUrl} alt={fullName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <User size={24} color={colors.asphalt} />
+          )}
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: colors.asphalt }}>
+            Driver Profile Photo
+          </div>
+          <div style={{ fontSize: 12, color: colors.gravelGrey, marginTop: 2 }}>
+            Visible to customers when ordering
+          </div>
+        </div>
+        <label
+          style={{
+            padding: '8px 12px',
+            borderRadius: 10,
+            backgroundColor: colors.safetyAmber,
+            color: colors.asphalt,
+            fontSize: 12,
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 5,
+          }}
+        >
+          <Camera size={14} />
+          {photoUploading ? 'Saving...' : driverPhotoUrl ? 'Change' : 'Upload'}
+          <input type="file" accept="image/*" onChange={handleDriverPhotoUpload} style={{ display: 'none' }} />
+        </label>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {docs.map((doc) => (
+          <div
+            key={doc.id}
+            style={{
+              padding: 15,
+              borderRadius: 16,
+              backgroundColor: colors.waybillPaper,
+              border: `1px solid ${colors.grey200}`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+            }}
+          >
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: colors.asphalt }}>
+                {doc.label}
+              </div>
+              <div style={{ fontSize: 12, color: colors.gravelGrey, marginTop: 2 }}>
+                {doc.fileName ?? 'Pending'} · Exp {doc.expiry}
+              </div>
+            </div>
+            <span
+              style={{
+                padding: '4px 10px',
+                borderRadius: 999,
+                backgroundColor:
+                  doc.status === 'VERIFIED' ? colors.greenLight : colors.roadWhite,
+                color:
+                  doc.status === 'VERIFIED' ? colors.weighbridgeGreen : colors.asphalt,
+                fontSize: 11,
+                fontWeight: 700,
+              }}
+            >
+              {doc.status}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
+  )
+}
+      </main >
+
+  {/* Clean Floating Pill Bottom Navigation matching Customer UI */ }
+{
+  !isAuthOrWelcome && (
+    <nav
+      style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        margin: '0 auto',
+        width: '100%',
+        maxWidth: 460,
+        backgroundColor: colors.roadWhite,
+        borderTop: `1px solid ${colors.grey200}`,
+        padding: '6px 8px calc(6px + env(safe-area-inset-bottom, 0px))',
+        boxShadow: '0 -6px 20px rgba(13, 109, 120, 0.08)',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: 4,
+        zIndex: 50,
+      }}
+    >
+      {[
+        { id: 'dashboard' as Screen, label: 'Dispatch', icon: Truck },
+        { id: 'active_trip' as Screen, label: 'Trip', icon: Navigation },
+        { id: 'earnings' as Screen, label: 'Earnings', icon: Wallet },
+        { id: 'docs' as Screen, label: 'Docs', icon: FileText },
+      ].map((tab) => {
+        const active = screen === tab.id || (tab.id === 'dashboard' && screen === 'offer');
+        const Icon = tab.icon;
+        return (
+          <button
+            key={tab.id}
+            onClick={() => setScreen(tab.id)}
+            style={{
+              height: 50,
+              borderRadius: 16,
+              border: 'none',
+              backgroundColor: active ? colors.asphalt : 'transparent',
+              color: active ? colors.safetyAmber : colors.gravelGrey,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 3,
+              fontSize: 11,
+              fontWeight: active ? 700 : 600,
+              cursor: 'pointer',
+              transition: 'all 160ms ease',
+            }}
+          >
+            <Icon size={17} />
+            <span>{tab.label}</span>
+          </button>
+        );
+      })}
+    </nav>
+  )
+}
+    </div >
   );
 }

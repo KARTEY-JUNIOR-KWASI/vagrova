@@ -440,6 +440,7 @@ export default function CustomerOrderingApp() {
           authToken={authToken}
           onClose={() => setActiveWaybillJobId(null)}
         />
+        <div key={screen} className="anim-screen-slide" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         {/* ════════════════════════════════════════════════════════════════════
             SCREEN 0A: REALISTIC TRUCK APPROACH + HEADLIGHT BLOOM LOGO INTRO
            ════════════════════════════════════════════════════════════════════ */}
@@ -720,24 +721,17 @@ export default function CustomerOrderingApp() {
                   setAuthError(null);
                   try {
                     await vagrovaApi.requestOtp(cleaned);
-                  } catch {
-                    // Graceful local preview fallback if API server is not running
+                    setScreen('auth_otp');
+                  } catch (err: any) {
+                    setAuthError(err?.message || 'Failed to send verification SMS. Please check your number and try again.');
                   } finally {
                     setAuthLoading(false);
-                    setScreen('auth_otp');
                   }
                 }}
                 style={{ width: '100%', height: '54px', backgroundColor: colors.safetyAmber, color: colors.asphalt, border: 'none', borderRadius: '4px', fontFamily: 'var(--font-heading)', fontSize: '16px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
                 <span>{authLoading ? 'Sending Code...' : 'Send Verification Code'}</span>
                 <ArrowRight size={18} />
-              </button>
-
-              <button
-                onClick={() => setScreen('home')}
-                style={{ background: 'none', border: 'none', fontSize: '13px', fontWeight: 600, color: colors.gravelGrey, padding: '6px' }}
-              >
-                Skip for now (Browse as Guest)
               </button>
             </div>
           </div>
@@ -791,10 +785,6 @@ export default function CustomerOrderingApp() {
                   placeholder="• • • • • •"
                   style={{ width: '100%', height: '56px', border: `1.5px solid ${colors.asphalt}`, borderRadius: '4px', textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '24px', fontWeight: 700, letterSpacing: '0.45em', color: colors.asphalt }}
                 />
-
-                <div style={{ marginTop: '12px', fontSize: '12px', color: colors.gravelGrey }}>
-                  Preview mode: enter any 6 digits (e.g. <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700 }}>123456</span>) if testing offline.
-                </div>
 
                 {authError && (
                   <div style={{ backgroundColor: colors.redLight, color: colors.rustRed, fontSize: '13px', fontWeight: 600, padding: '10px 12px', borderRadius: '4px', marginTop: '10px' }}>
@@ -3102,6 +3092,7 @@ export default function CustomerOrderingApp() {
             )}
           </div>
         )}
+        </div>
 
         {/* ════════════════════════════════════════════════════════════════════
             FLOATING BOTTOM NAVIGATION DOCK (Bolt / Qargo style) + CALL VAGROVA
