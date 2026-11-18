@@ -8,6 +8,7 @@ import PriceEstimateCard, { formatGhs, getRateGhs } from '@/components/PriceEsti
 import LiveTrackingView from '@/components/LiveTrackingView';
 import OnboardingHero from '@/components/OnboardingHero';
 import QuoteReviewModal from '@/components/QuoteReviewModal';
+import DigitalWaybillModal from '@/components/DigitalWaybillModal';
 import {
   ToastBanner,
   NotificationBellButton,
@@ -132,6 +133,7 @@ export default function CustomerOrderingApp() {
   const [myJobs, setMyJobs] = useState<any[]>([]);
   const [myQuoteRequests, setMyQuoteRequests] = useState<any[]>([]);
   const [activeQuoteReview, setActiveQuoteReview] = useState<any | null>(null);
+  const [activeWaybillJobId, setActiveWaybillJobId] = useState<string | null>(null);
   const [selectedTrackingJob, setSelectedTrackingJob] = useState<any | null>(null);
 
   // Managed Equipment Catalog & Category A/B Request State
@@ -432,6 +434,11 @@ export default function CustomerOrderingApp() {
             }
           }}
           onError={(title, msg) => pushNotification(title, msg, 'error')}
+        />
+        <DigitalWaybillModal
+          jobId={activeWaybillJobId}
+          authToken={authToken}
+          onClose={() => setActiveWaybillJobId(null)}
         />
         {/* ════════════════════════════════════════════════════════════════════
             SCREEN 0A: REALISTIC TRUCK APPROACH + HEADLIGHT BLOOM LOGO INTRO
@@ -3016,8 +3023,26 @@ export default function CustomerOrderingApp() {
                       <div style={{ fontFamily: 'var(--font-heading)', fontSize: '16px', fontWeight: 700 }}>
                         {j.pickupAddress} → {j.deliveryAddress}
                       </div>
-                      <div style={{ fontSize: '12px', color: colors.gravelGrey, marginTop: '2px' }}>
+                      <div style={{ fontSize: '12px', color: colors.gravelGrey, marginTop: '2px', marginBottom: '10px' }}>
                         {j.equipmentType?.name || j.vehicleType} · {j.weightTonnes || 0}t
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          onClick={() => {
+                            setSelectedTrackingJob(j);
+                            setActiveJobId(j.id);
+                            setScreen('tracking');
+                          }}
+                          style={{ flex: 1, height: '36px', borderRadius: '8px', backgroundColor: colors.asphalt, color: colors.safetyAmber, border: 'none', fontSize: '12px', fontWeight: 800, cursor: 'pointer' }}
+                        >
+                          Live Track
+                        </button>
+                        <button
+                          onClick={() => setActiveWaybillJobId(j.id)}
+                          style={{ height: '36px', padding: '0 12px', borderRadius: '8px', backgroundColor: colors.waybillPaper, color: colors.asphalt, border: `1px solid ${colors.grey200}`, fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
+                        >
+                          Waybill PDF
+                        </button>
                       </div>
                     </div>
                   );

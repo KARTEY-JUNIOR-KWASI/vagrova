@@ -158,6 +158,10 @@ export const vagrovaApi = {
     return apiFetch<any[]>('/dispatch/jobs/my', { token });
   },
 
+  getConsignmentReceipt(token: string, jobId: string) {
+    return apiFetch<any>(`/receipts/consignment/${jobId}`, { token });
+  },
+
   getMyQuoteRequests(token: string) {
     return apiFetch<any[]>('/quotes/my', { token });
   },
