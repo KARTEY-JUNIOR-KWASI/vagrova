@@ -83,6 +83,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       const res = await adminApi.verifyOtp(phone.trim(), otp.trim());
+      const STAFF_ROLES = ['SUPER_ADMIN', 'ADMIN', 'DISPATCHER', 'OPERATIONS_MANAGER', 'FINANCE', 'AGENT'];
+      if (!STAFF_ROLES.includes(res.user?.role)) {
+        setError(`Account role is ${res.user?.role || 'CUSTOMER'}. Sign in with your Admin phone number.`);
+        return;
+      }
       localStorage.setItem('vagrova_admin_token', res.accessToken);
       setIsConnected(true);
       setShowAuthModal(false);

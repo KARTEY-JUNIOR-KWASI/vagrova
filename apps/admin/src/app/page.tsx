@@ -21,12 +21,14 @@ export default function DashboardPage() {
   const [quoteCount, setQuoteCount] = useState(0);
   const [customerCount, setCustomerCount] = useState(0);
   const [truckCount, setTruckCount] = useState(0);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const loadDashboard = () => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('vagrova_admin_token') : null;
     if (!token) return;
-    adminApi.listAdminJobs().then((rows) => { if (Array.isArray(rows)) setRecentJobs(rows); }).catch(() => {});
-    adminApi.getQuotesQueue().then((rows) => { if (Array.isArray(rows)) setQuoteCount(rows.length); }).catch(() => {});
+    setApiError(null);
+    adminApi.listAdminJobs().then((rows) => { if (Array.isArray(rows)) setRecentJobs(rows); }).catch((e) => setApiError(e?.message || 'Unable to load jobs'));
+    adminApi.getQuotesQueue().then((rows) => { if (Array.isArray(rows)) setQuoteCount(rows.length); }).catch((e) => setApiError(e?.message || 'Unable to load quote queue'));
     adminApi.listAdminCustomers().then((rows) => { if (Array.isArray(rows)) setCustomerCount(rows.length); }).catch(() => {});
     adminApi.listAdminTrucks().then((rows) => { if (Array.isArray(rows)) setTruckCount(rows.length); }).catch(() => {});
   };
@@ -99,6 +101,12 @@ export default function DashboardPage() {
             </button>
           </div>
         </div>
+
+        {apiError && (
+          <div style={{ backgroundColor: '#FADBD8', color: '#87241B', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', fontSize: '13px', fontWeight: 700 }}>
+            Admin API Notice: {apiError} — Try signing out (top right) and signing back in with your Admin phone.
+          </div>
+        )}
 
         {quoteCount > 0 && (
           <a

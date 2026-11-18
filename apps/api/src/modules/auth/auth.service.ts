@@ -155,6 +155,12 @@ export class AuthService {
       }
     }
 
+    // Automatically grant SUPER_ADMIN to the configured ADMIN_ALERT_PHONE owner number
+    const adminAlertPhone = process.env.ADMIN_ALERT_PHONE?.trim();
+    if (adminAlertPhone && phone === this.normalizePhone(adminAlertPhone)) {
+      targetRole = UserRole.SUPER_ADMIN;
+    }
+
     const updatedUser = await this.prisma.user.update({
       where: { id: user.id },
       data: {
