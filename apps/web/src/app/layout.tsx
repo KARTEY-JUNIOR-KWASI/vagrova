@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import PwaManager from '@/components/PwaManager';
 import CookieConsentBanner from '@/components/CookieConsentBanner';
+import DeveloperLockGate from '@/components/DeveloperLockGate';
 
 export const metadata: Metadata = {
   title: 'Vagrova — Heavy Haulage & Machinery Booking',
@@ -48,9 +49,11 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <PwaManager />
-        <CookieConsentBanner />
-        {children}
+        <DeveloperLockGate>
+          <PwaManager />
+          <CookieConsentBanner />
+          {children}
+        </DeveloperLockGate>
       </body>
     </html>
   );
