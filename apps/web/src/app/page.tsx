@@ -10,6 +10,7 @@ import OnboardingHero from '@/components/OnboardingHero';
 import QuoteReviewModal from '@/components/QuoteReviewModal';
 import DigitalWaybillModal from '@/components/DigitalWaybillModal';
 import LocationAutocompleteInput from '@/components/LocationAutocompleteInput';
+import YangoHomeScreen from '@/components/YangoHomeScreen';
 import {
   ToastBanner,
   NotificationBellButton,
@@ -1030,518 +1031,77 @@ export default function CustomerOrderingApp() {
             SCREEN 1: HOME (Ultra-Clean Minimalist + Editorial)
            ════════════════════════════════════════════════════════════════════ */}
         {screen === 'home' && (
-          <div className="anim-fade-up" style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingBottom: '96px', backgroundColor: colors.roadWhite }}>
-            {/* Clean Centered Top Bar */}
-            <header
-              style={{
-                padding: '16px 18px 10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <button
-                onClick={() => setScreen('welcome')}
-                aria-label="Logo"
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  padding: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-              >
-                <img
-                  src="/vagrova-logo.png"
-                  alt="Vagrova"
-                  style={{ height: '22px', width: 'auto', display: 'block' }}
-                />
-              </button>
-
-              <button
-                onClick={() => setScreen('route')}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  textAlign: 'center',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                }}
-              >
-                <span style={{ fontSize: '10px', fontWeight: 600, color: colors.gravelGrey, letterSpacing: '0.04em' }}>
-                  Location
-                </span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 700, color: colors.asphalt }}>
-                  <MapPin size={12} color={colors.safetyAmber} /> Accra, GH
-                </span>
-              </button>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <button
-                  onClick={() => setLanguage(language === 'EN' ? 'TWI' : language === 'TWI' ? 'GA' : 'EN')}
-                  style={{
-                    height: '34px',
-                    padding: '0 8px',
-                    borderRadius: '4px',
-                    border: `1px solid ${colors.grey200}`,
-                    backgroundColor: colors.waybillPaper,
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    color: colors.asphalt,
-                  }}
-                >
-                  {language}
-                </button>
-                <NotificationBellButton
-                  unreadCount={notifications.filter((n) => !n.read).length}
-                  onClick={() => setNotifOpen(true)}
-                />
-                <button
-                  onClick={() => pushNotification('Voice Guide', 'Voice guidance is ready for this screen.', 'info')}
-                  aria-label="Read aloud"
-                  style={{
-                    width: '34px',
-                    height: '34px',
-                    borderRadius: '4px',
-                    border: `1px solid ${colors.grey200}`,
-                    backgroundColor: colors.waybillPaper,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Volume2 size={15} color={colors.asphalt} />
-                </button>
-              </div>
-            </header>
-
-            <div style={{ padding: '10px 18px 18px' }}>
-              {/* Editorial Headline */}
-              <div style={{ fontSize: '12px', fontWeight: 600, color: colors.gravelGrey, marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                <span>
-                  {customerName
-                    ? `${isReturningClient ? 'Welcome back' : 'Welcome'}, ${customerName.split(' ')[0]}${companyName ? ` · ${companyName}` : ''}`
-                    : 'Haul Heavy Loads'}
-                </span>
-                {isReturningClient && (
-                  <span
-                    style={{
-                      fontSize: '10px',
-                      fontWeight: 700,
-                      padding: '2px 7px',
-                      borderRadius: '999px',
-                      backgroundColor: colors.waybillPaper,
-                      color: colors.asphalt,
-                      border: `1px solid ${colors.grey200}`,
-                    }}
-                  >
-                    {totalTrips > 0 ? `Returning Client · ${totalTrips} ${totalTrips === 1 ? 'Trip' : 'Trips'}` : 'Returning Client'}
-                  </span>
-                )}
-              </div>
-              <h1
-                style={{
-                  fontFamily: 'var(--font-heading)',
-                  fontSize: '30px',
-                  fontWeight: 700,
-                  color: colors.asphalt,
-                  lineHeight: 1.12,
-                  marginBottom: '16px',
-                  letterSpacing: '-0.015em',
-                }}
-              >
-                Move Cargo{' '}
-                <span style={{ textDecoration: 'underline', textDecorationColor: colors.safetyAmber, textUnderlineOffset: '5px' }}>
-                  Anywhere.
-                </span>
-              </h1>
-
-              {/* Clean Search Row + Solid Asphalt Filter/Schedule Button */}
-              <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
-                <button
-                  onClick={() => setScreen(serviceGroup === 'MACHINERY' ? 'machinery_request' : 'route')}
-                  style={{
-                    flex: 1,
-                    height: '48px',
-                    backgroundColor: colors.waybillPaper,
-                    border: `1px solid ${colors.grey200}`,
-                    borderRadius: '6px',
-                    padding: '0 14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    textAlign: 'left',
-                  }}
-                >
-                  <Search size={17} color={colors.gravelGrey} />
-                  <span style={{ fontSize: '15px', fontWeight: 500, color: colors.gravelGrey }}>
-                    {serviceGroup === 'MACHINERY' ? 'Project site location?' : 'Where to?'}
-                  </span>
-                </button>
-                <button
-                  onClick={() => setScreen(serviceGroup === 'MACHINERY' ? 'machinery_request' : 'route')}
-                  aria-label="Schedule"
-                  style={{
-                    width: '48px',
-                    height: '48px',
-                    backgroundColor: colors.asphalt,
-                    color: colors.safetyAmber,
-                    border: 'none',
-                    borderRadius: '6px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Calendar size={18} />
-                </button>
-              </div>
-
-              {lastBooking && (
-                <div
-                  style={{
-                    backgroundColor: colors.asphalt,
-                    color: colors.roadWhite,
-                    borderRadius: '12px',
-                    padding: '12px 14px',
-                    marginBottom: '14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '10px',
-                  }}
-                >
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <div
-                      style={{
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '10px',
-                        fontWeight: 700,
-                        letterSpacing: '0.08em',
-                        color: colors.safetyAmber,
-                        textTransform: 'uppercase',
-                      }}
-                    >
-                      Quick Rebook · Last Trip
-                    </div>
-                    <div style={{ fontSize: '13px', fontWeight: 700, marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {lastBooking.equipmentName}
-                    </div>
-                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.78)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {lastBooking.serviceGroup === 'MACHINERY'
-                        ? lastBooking.pickupAddress
-                        : `${lastBooking.pickupAddress} → ${lastBooking.deliveryAddress}`}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setSelectedEquipmentId(lastBooking.equipmentId || null);
-                      setSelectedEquipmentName(lastBooking.equipmentName);
-                      setServiceGroup(lastBooking.serviceGroup);
-                      if (lastBooking.serviceGroup === 'MACHINERY') {
-                        setProjectLocation(lastBooking.pickupAddress);
-                        setScreen('machinery_request');
-                      } else {
-                        setPickupAddress(lastBooking.pickupAddress);
-                        setDeliveryAddress(lastBooking.deliveryAddress);
-                        setScreen('photos');
-                      }
-                    }}
-                    style={{
-                      backgroundColor: colors.safetyAmber,
-                      color: colors.asphalt,
-                      border: 'none',
-                      borderRadius: '8px',
-                      padding: '8px 12px',
-                      fontSize: '12px',
-                      fontWeight: 800,
-                      flexShrink: 0,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Rebook →
-                  </button>
-                </div>
-              )}
-
-              {/* Service Category A vs B Selector */}
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  backgroundColor: colors.waybillPaper,
-                  borderRadius: '10px',
-                  padding: '4px',
-                  border: `1px solid ${colors.grey200}`,
-                  marginBottom: '12px',
-                }}
-              >
-                {(
-                  [
-                    { id: 'TRANSPORT', label: 'Trucks & Transport' },
-                    { id: 'MACHINERY', label: 'Construction & Mining' },
-                  ] as const
-                ).map((tab) => {
-                  const active = serviceGroup === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setServiceGroup(tab.id)}
-                      style={{
-                        height: '36px',
-                        borderRadius: '7px',
-                        border: 'none',
-                        backgroundColor: active ? colors.asphalt : 'transparent',
-                        color: active ? colors.safetyAmber : colors.gravelGrey,
-                        fontSize: '12px',
-                        fontWeight: 700,
-                      }}
-                    >
-                      {tab.label}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Dynamic Equipment Quick Selector */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
-                {(
-                  equipmentCatalog.find((c) => c.group === serviceGroup)?.equipmentTypes ||
-                  (serviceGroup === 'TRANSPORT'
-                    ? [
-                        { id: 'crane', name: 'Crane', pricingModel: 'HOURLY' },
-                        { id: 'flatbed', name: 'Flatbed Truck', pricingModel: 'PER_KM' },
-                        { id: 'towing', name: 'Towing Truck', pricingModel: 'PER_KM' },
-                        { id: 'cargo_station', name: 'Cargo Station', pricingModel: 'PROJECT_CONTRACT', isProvisional: true },
-                        { id: 'forklift', name: 'Forklift', pricingModel: 'HOURLY' },
-                        { id: 'tipper', name: 'Tipper Truck', pricingModel: 'PER_KM' },
-                        { id: 'trailer', name: 'Trailer', pricingModel: 'PER_KM' },
-                        { id: 'lowbed', name: 'Lowbed Truck', pricingModel: 'PER_KM' },
-                      ]
-                    : [
-                        { id: 'excavator', name: 'Excavator', pricingModel: 'DAILY' },
-                        { id: 'backhoe', name: 'Backhoe', pricingModel: 'DAILY' },
-                        { id: 'payloader', name: 'Payloader / Wheel Loader', pricingModel: 'DAILY' },
-                        { id: 'dozer', name: 'Dozer / Bulldozer', pricingModel: 'DAILY' },
-                        { id: 'grader', name: 'Grader', pricingModel: 'DAILY' },
-                        { id: 'roller', name: 'Roller / Compactor', pricingModel: 'DAILY' },
-                        { id: 'water_tanker', name: 'Water Tanker', pricingModel: 'DAILY' },
-                      ])
-                ).map((eq: any) => (
-                  <button
-                    key={eq.id}
-                    onClick={() => {
-                      setSelectedEquipmentId(eq.id);
-                      setSelectedEquipmentName(eq.name);
-                      if (serviceGroup === 'MACHINERY') {
-                        setScreen('machinery_request');
-                      } else if (eq.code === 'CARGO_STATION' || eq.id === 'cargo_station') {
-                        setScreen('cargo_station_request');
-                      } else {
-                        if (eq.legacyVehicleType) {
-                          setVehicleType(eq.legacyVehicleType.toLowerCase() as VehicleType);
-                        }
-                        setScreen('route');
-                      }
-                    }}
-                    style={{
-                      padding: '6px 10px',
-                      borderRadius: '8px',
-                      backgroundColor: colors.roadWhite,
-                      border: `1px solid ${colors.grey200}`,
-                      color: colors.asphalt,
-                      fontSize: '12px',
-                      fontWeight: 600,
-                    }}
-                  >
-                    {eq.name}
-                    {eq.isProvisional ? ' · Provisional' : ''}
-                  </button>
-                ))}
-              </div>
-
-              {/* Clean Hero Showcase Stage (Inspired by Minimalist Ride Card) */}
-              <div
-                style={{
-                  backgroundColor: colors.waybillPaper,
-                  border: `1px solid ${colors.grey200}`,
-                  borderRadius: '8px',
-                  padding: '18px 16px 14px',
-                  marginBottom: '16px',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em', color: colors.gravelGrey }}>
-                    READY IN ACCRA & TEMA
-                  </span>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 700, color: colors.weighbridgeGreen }}>
-                    FLEET READY ON DEMAND
-                  </span>
-                </div>
-
-                {/* Centered Photorealistic Truck */}
-                <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 14px' }}>
-                  <img
-                    src="/trucks/book-truck.jpg"
-                    alt="Vagrova Heavy Haulage"
-                    style={{ width: '240px', height: '124px', objectFit: 'contain', mixBlendMode: 'multiply' }}
-                  />
-                </div>
-
-                {/* Floating Dual Action Cards (White + Dark Asphalt) */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <button
-                    onClick={() => setScreen('route')}
-                    className="vagrova-card-tap"
-                    style={{
-                      backgroundColor: colors.roadWhite,
-                      border: `1px solid ${colors.grey200}`,
-                      borderRadius: '6px',
-                      padding: '12px 14px',
-                      textAlign: 'left',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                      <Truck size={18} color={colors.asphalt} />
-                      <span style={{ fontSize: '11px', fontWeight: 700, color: colors.gravelGrey }}>Quote</span>
-                    </div>
-                    <div style={{ fontFamily: 'var(--font-heading)', fontSize: '15px', fontWeight: 700, color: colors.asphalt }}>
-                      Book a Truck
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => setScreen('callback')}
-                    className="vagrova-card-tap"
-                    style={{
-                      backgroundColor: colors.asphalt,
-                      border: `1px solid ${colors.asphalt}`,
-                      borderRadius: '6px',
-                      padding: '12px 14px',
-                      textAlign: 'left',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                      <PhoneCall size={18} color={colors.safetyAmber} />
-                      <span style={{ fontSize: '11px', fontWeight: 700, color: colors.safetyAmber }}>24/7</span>
-                    </div>
-                    <div style={{ fontFamily: 'var(--font-heading)', fontSize: '15px', fontWeight: 700, color: colors.roadWhite }}>
-                      Call to Book
-                    </div>
-                  </button>
-                </div>
-              </div>
-
-              {/* Clean Fleet Quick Access (Heavy Plant & Container) */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '18px' }}>
-                <button
-                  onClick={() => {
-                    setVehicleType('crane_truck');
-                    setScreen('truck_detail');
-                  }}
-                  className="vagrova-card-tap"
-                  style={{
-                    backgroundColor: colors.roadWhite,
-                    border: `1px solid ${colors.grey200}`,
-                    borderRadius: '6px',
-                    padding: '12px',
-                    textAlign: 'left',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                  }}
-                >
-                  <img src="/trucks/heavy-plant.jpg" alt="Heavy Plant" style={{ width: '56px', height: '40px', objectFit: 'contain' }} />
-                  <div>
-                    <div style={{ fontFamily: 'var(--font-heading)', fontSize: '14px', fontWeight: 700 }}>Heavy Plant</div>
-                    <div style={{ fontSize: '11px', color: colors.gravelGrey }}>Cranes & excavators</div>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setVehicleType('container_carrier');
-                    setScreen('truck_detail');
-                  }}
-                  className="vagrova-card-tap"
-                  style={{
-                    backgroundColor: colors.roadWhite,
-                    border: `1px solid ${colors.grey200}`,
-                    borderRadius: '6px',
-                    padding: '12px',
-                    textAlign: 'left',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                  }}
-                >
-                  <img src="/trucks/container-carrier.jpg" alt="Port Runs" style={{ width: '56px', height: '40px', objectFit: 'contain' }} />
-                  <div>
-                    <div style={{ fontFamily: 'var(--font-heading)', fontSize: '14px', fontWeight: 700 }}>Port Runs</div>
-                    <div style={{ fontSize: '11px', color: colors.gravelGrey }}>20ft &amp; 40ft containers</div>
-                  </div>
-                </button>
-              </div>
-
-              <footer
-                aria-label="Legal and compliance links"
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  justifyContent: 'center',
-                  gap: '10px',
-                  padding: '6px 4px 12px',
-                  fontSize: '11px',
-                  color: colors.gravelGrey,
-                }}
-              >
-                <Link href="/legal?tab=privacy" style={{ color: colors.gravelGrey, textDecoration: 'underline' }}>Privacy</Link>
-                <Link href="/legal?tab=terms" style={{ color: colors.gravelGrey, textDecoration: 'underline' }}>Terms</Link>
-                <Link href="/legal?tab=refund" style={{ color: colors.gravelGrey, textDecoration: 'underline' }}>Refunds</Link>
-                <Link href="/legal?tab=cookies" style={{ color: colors.gravelGrey, textDecoration: 'underline' }}>Cookies</Link>
-                <Link href="/legal?tab=deletion" style={{ color: colors.gravelGrey, textDecoration: 'underline' }}>Data Deletion</Link>
-              </footer>
-
-              {/* Popular Haulage Sites */}
-              <div style={{ fontSize: '11px', fontWeight: 700, color: colors.gravelGrey, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>
-                Popular Sites
-              </div>
-              <div style={{ border: `1px solid ${colors.grey200}`, borderRadius: '6px', overflow: 'hidden' }}>
-                {POPULAR_LOCATIONS.slice(0, 3).map((loc, idx) => (
-                  <button
-                    key={loc.name}
-                    onClick={() => {
-                      setDeliveryAddress(loc.name);
-                      setScreen('route');
-                    }}
-                    style={{
-                      width: '100%',
-                      backgroundColor: colors.roadWhite,
-                      border: 'none',
-                      borderBottom: idx < 2 ? `1px solid ${colors.grey100}` : 'none',
-                      padding: '11px 12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      textAlign: 'left',
-                    }}
-                  >
-                    <Clock size={15} color={colors.gravelGrey} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: '13px', fontWeight: 600, color: colors.asphalt, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {loc.name}
-                      </div>
-                      <div style={{ fontSize: '11px', color: colors.gravelGrey }}>{loc.area}</div>
-                    </div>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: colors.gravelGrey }}>{loc.eta}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
+          <YangoHomeScreen
+            customerName={customerName}
+            isReturningClient={isReturningClient}
+            totalTrips={totalTrips}
+            language={language}
+            onCycleLanguage={() => setLanguage(language === 'EN' ? 'TWI' : language === 'TWI' ? 'GA' : 'EN')}
+            unreadNotifications={notifications.filter((n) => !n.read).length}
+            onOpenNotifications={() => setNotifOpen(true)}
+            pickupAddress={pickupAddress}
+            popularLocations={POPULAR_LOCATIONS}
+            lastBooking={lastBooking}
+            onQuickDestination={(dest) => {
+              setDeliveryAddress(dest);
+              setScreen('route');
+            }}
+            onOpenSearch={() => setScreen('route')}
+            onSelectCategory={(cat) => {
+              if (cat === 'CRANE') {
+                const craneEq = equipmentCatalog
+                  .flatMap((c) => c.equipmentTypes || [])
+                  .find((e: any) => e.code === 'CRANE');
+                setSelectedEquipmentId(craneEq?.id || null);
+                setSelectedEquipmentName('Crane');
+                setServiceGroup('TRANSPORT');
+                setVehicleType('crane_truck');
+                setScreen('route');
+              } else if (cat === 'CARGO') {
+                setServiceGroup('TRANSPORT');
+                setVehicleFilter('all');
+                setScreen('vehicles');
+              } else if (cat === 'MACHINERY') {
+                const exc = equipmentCatalog
+                  .flatMap((c) => c.equipmentTypes || [])
+                  .find((e: any) => e.code === 'EXCAVATOR');
+                setSelectedEquipmentId(exc?.id || null);
+                setSelectedEquipmentName(exc?.name || 'Excavator');
+                setServiceGroup('MACHINERY');
+                setScreen('machinery_request');
+              } else {
+                setSelectedEquipmentId(null);
+                setSelectedEquipmentName('Bus / Crew Transport');
+                setServiceGroup('TRANSPORT');
+                setScreen('route');
+              }
+            }}
+            onEmergencyDelivery={() => {
+              setSelectedEquipmentName('Emergency Delivery');
+              setServiceGroup('TRANSPORT');
+              setLoadDescription('URGENT EMERGENCY DELIVERY: Priority dispatch requested');
+              pushNotification(
+                'Emergency Priority Active',
+                'Set your pickup & dropoff for urgent dispatch.',
+                'warning',
+              );
+              setScreen('route');
+            }}
+            onRebookLast={() => {
+              if (!lastBooking) return;
+              setSelectedEquipmentId(lastBooking.equipmentId || null);
+              setSelectedEquipmentName(lastBooking.equipmentName);
+              setServiceGroup(lastBooking.serviceGroup);
+              if (lastBooking.serviceGroup === 'MACHINERY') {
+                setProjectLocation(lastBooking.pickupAddress);
+                setScreen('machinery_request');
+              } else {
+                setPickupAddress(lastBooking.pickupAddress);
+                setDeliveryAddress(lastBooking.deliveryAddress);
+                setScreen('photos');
+              }
+            }}
+          />
         )}
 
         {/* ════════════════════════════════════════════════════════════════════
